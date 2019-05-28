@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <van-nav-bar class="header-bg" title="任务平台" left-text="返回" left-arrow  @click-left="onClickLeft"/>
+    <van-nav-bar class="header-bg" title="任务平台" left-text="返回" left-arrow  @click-left="onClickLeft" />
     <router-view></router-view>
     <van-tabbar v-model="active" route>
       <van-tabbar-item replace  to="/taskList" icon="home-o">
@@ -39,7 +39,7 @@ export default {
   .header-bg{
     background:#26a2ff;
     .van-nav-bar__text,.van-icon,.van-nav-bar__title{
-    color: #fff;
+      color: #fff;
     }
   }
 }
