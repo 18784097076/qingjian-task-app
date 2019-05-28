@@ -3,6 +3,8 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import axios from 'axios'
+import 'vant/lib/index.css'
+import {Button,Field,Toast,NavBar,Tabbar, TabbarItem,Icon,Panel,Tab,Tabs,List} from 'vant'
 
 Vue.config.productionTip = false
 Vue.prototype.axios = axios
@@ -19,8 +21,7 @@ Vue.prototype.axios.interceptors.request.use(config => {
   return config;
 }, error => Promise.error(error));
 
-import 'vant/lib/index.css'
-import {Button,Field,Toast,NavBar,Tabbar, TabbarItem,Icon,Panel,Tab,Tabs,List} from 'vant'
+
 Vue.use(Button)
 Vue.use(Field);
 Vue.use(Toast);

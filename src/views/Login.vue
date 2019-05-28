@@ -5,7 +5,7 @@
       <van-field label="用户名" v-model="uname" placeholder="请输入用户名" @blur="unameBlur" autofocus/>
       <van-field type="password" label="密码" v-model="upwd" placeholder="请输入密码"  @blur="upwdBlur"/>
       <van-button type="info" size="large" round style="margin-top:20px;" @click="loginSubmit">登录</van-button>
-      <van-button size="large" round style="margin-top:10px;">注册</van-button>
+      <van-button size="large" round style="margin-top:10px;" @click="toRegister">注册</van-button>
     </div>
   </div>
 </template>
@@ -55,6 +55,9 @@ export default {
       }else if(!this.validUpwd){
         this.$toast('密码不能为空')
       }
+    },
+    toRegister(){
+      this.$router.push('/register');
     }
   }
 }
