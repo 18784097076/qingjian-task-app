@@ -19,8 +19,9 @@ Vue.prototype.axios.interceptors.request.use(config => {
   return config;
 }, error => Promise.error(error));
 
+
 import 'vant/lib/index.css'
-import {Button,Field,Toast,NavBar,Tabbar, TabbarItem,Icon,Panel,Tab,Tabs,List} from 'vant'
+import {Button,Field,Toast,NavBar,Tabbar, TabbarItem,Icon,Panel,Tab,Tabs,List,Popup,DatetimePicker,Dialog,Progress} from 'vant'
 Vue.use(Button)
 Vue.use(Field);
 Vue.use(Toast);
@@ -29,7 +30,11 @@ Vue.use(Tabbar).use(TabbarItem);
 Vue.use(Icon);
 Vue.use(Panel);
 Vue.use(Tab).use(Tabs);
-Vue.use(List)
+Vue.use(List);
+Vue.use(Popup);
+Vue.use(DatetimePicker);
+Vue.use(Dialog);
+Vue.use(Progress);
 
 Vue.filter('dateTime', (val) => {
   var date = new Date(val);
@@ -43,6 +48,16 @@ Vue.filter('dateTime', (val) => {
   f < 10 && (f = '0' + f);
   s < 10 && (s = '0' + s);
   return `${y}-${m}-${d} ${h}:${f}:${s}`
+})
+
+Vue.filter('status', (val) => {
+  if (val == 3) {
+      return '失败'
+  } else if (val == 2) {
+      return '成功'
+  }else if(val ==1 ){
+      return '进行中'
+  }
 })
 
 new Vue({

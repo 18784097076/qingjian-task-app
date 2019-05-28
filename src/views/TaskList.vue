@@ -1,5 +1,6 @@
 <template>
   <div class="task-list">
+    <van-progress :percentage="progress" color="green" :show-pivot="false"/>
     <van-button @click="replayTaskList" size="large" type="info" round style="margin:20px auto;height:30px;line-height:30px;width:80%">
       <van-icon name="replay"/> 
       <span>刷新任务</span>  
@@ -22,11 +23,11 @@
 </template>
 
 <script>
-import { setTimeout } from 'timers';
 export default {
   data(){
     return {
-      taskList:[]
+      taskList:[],
+      progress:0
     }
   },
   mounted(){
@@ -42,10 +43,25 @@ export default {
             this.taskList = res.data.data.list.list
             console.log(this.taskList)
         })
+      let timer=window.setInterval(()=>{
+        this.progress += 1
+        if(this.progress >= 100){
+          this.progress = 0
+          window.clearInterval(timer)
+        }
+      },30)
     },
     getTask(tid){
+      //领取任务
       this.axios.put('http://www.smctask.cn:8080/task/claim?tid='+tid).then(res=>{
-        console.log(res)
+        if(res.code == 200){
+          console.log('领取任务成功')
+        }else{
+          Toast({
+            message: '领取失败',
+            duration: 1000
+            });  
+        }
       })
     }
   }
@@ -53,6 +69,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+ 
 .task-list{
   .all-task-list{
     .task-item{
