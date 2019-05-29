@@ -8,6 +8,10 @@ import UserCenter from './views/UserCenter.vue'
 import Register from './views/Register.vue';
 import Income from './views/Income.vue';
 import Pay from './views/Pay';
+import CashWithdrawal from './views/CashWithdrawal';
+import PreviewUser from './views/PreviewUser';
+import NextUser from './views/NextUser';
+import AlipayInfo from './views/AlipayInfo';
 
 Vue.use(Router)
 
@@ -27,6 +31,10 @@ export default new Router({
                 {path:'/userCenter',component:UserCenter},
                 { path:'/income',component:Income},
                 { path:'/pay',component:Pay},
+                { path:'/cashWithdrawal',component:CashWithdrawal},
+                { path:'/previewUser',component:PreviewUser},
+                { path:'/nextUser',component:NextUser},
+                { path:'/alipayInfo',component:AlipayInfo},
             ]
         }
     ]

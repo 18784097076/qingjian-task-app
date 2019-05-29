@@ -1,7 +1,7 @@
 <template>
     <div>
         <header>
-            <span><van-icon name="arrow-left" @click="returnTo"/></span>
+            <span><van-icon name="arrow-left" @click="returnToLogin"/></span>
             注册
         </header>
         <section>
@@ -15,7 +15,7 @@
                         v-model="verifyCode"
                         label="验证码"
                 />
-                <van-button type="info" class="getVerifyCode" @click="getVerifyCode">获取验证码</van-button>
+                <van-button type="info" class="getVerifyCode" @click="getVerifyCode" :disabled="ifDisabled">获取验证码</van-button>
             </div>
 
             <van-field
@@ -54,24 +54,27 @@
             return{
                 phone:'',
                 password:'',
-                code:'W3D23',
+                code:'',
                 verifyCode:'',
                 verifyPassword:'',
                 num:60,
-                msg:"",
+                msg:"",//第二次输入密码与第一次输入密码不同的错误信息
+                ifDisabled:false
             }
         },
         methods:{
             getVerifyCode(ev){
+                this.ifDisabled=true;
                 ev.target.innerText=this.num+'s后重新获取';
                 let that=this;
                 let timer=setInterval(function () {
-                    if(that.num>0){
+                    if(that.num>1){
                         parseInt(that.num--);
                         ev.target.innerText=that.num+'s后重新获取';
-                    }
-                    else if(that.num==0){
+                    } else if(that.num==1){
+                        that.ifDisabled=false;
                         ev.target.innerText='重新获取';
+                        that.num=60;
                         clearInterval(timer)
                     }
                 },1000);
@@ -82,12 +85,12 @@
                     this.msg="两次输入密码不匹配！";
                 }
             },
-            returnTo(){
-                this.$router.go(-1);
-            },
             returnToLogin(){
                 this.$router.push('/login');
             }
+        },
+        mounted(){
+            this.code=this.$route.query.code;
         }
     }
 
@@ -97,13 +100,15 @@
     header{
         text-align: center;
         line-height:50px;
-        color: deepskyblue;
+        /*color: #ccc;*/
+        font-weight: bold;
+        font-size: 1.17em;
     }
     header span{
         position: absolute;
         left:10px;
         top:4px;
-        color: deepskyblue;
+        color: #26a2ff;
     }
     #verify{
         position: relative;
@@ -126,7 +131,7 @@
         border-radius: 20px;
     }
     footer>span{
-        color: deepskyblue;
+        color: #26a2ff;
         font-size:14px;
         position:absolute;
         right:20px;

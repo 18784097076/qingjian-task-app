@@ -6,11 +6,15 @@
     </header>
     <section>
       <ul>
-        <li @click="income"><span>收入</span> <van-icon name="arrow" class="icons" /></li>
-        <li @click="pay"><span>支出</span> <van-icon name="arrow" class="icons" /></li>
-        <li>邀请码</li>
-        <li @click="updatePassword">修改密码</li>
-        <li @click="loginOut">退出登录</li>
+        <li @touchstart="income"><span>收入</span> <van-icon name="arrow" class="icons" /></li>
+        <li @touchstart="pay"><span>支出</span> <van-icon name="arrow" class="icons" /></li>
+        <li @touchstart="cashWithdrawal"><span>提现</span> <van-icon name="arrow" class="icons" /></li>
+        <li @touchstart="alipayInfo"><span>支付宝账户</span> <van-icon name="arrow" class="icons" /></li>
+        <li @touchstart="preview"><span>上级信息</span> <van-icon name="arrow" class="icons" /></li>
+        <li @touchstart="next"><span>下级信息</span> <van-icon name="arrow" class="icons" /></li>
+        <li><span>邀请码 : {{invitationCode}}</span><van-button type="info" class="icons" v-clipboard:copy="'http://localhost:8080/#/register?code='+invitationCode"  v-clipboard:success="copySuccess" v-clipboard:error="copyError">复制</van-button></li>
+        <li @touchstart="updatePassword">修改密码</li>
+        <li @touchstart="loginOut">退出登录</li>
       </ul>
       <van-dialog
               v-model="show"
@@ -49,7 +53,7 @@
 </template>
 
 <script>
-  // import {Dialog} from 'vant';
+
 export default {
   data(){
     return{
@@ -61,7 +65,8 @@ export default {
       msg:"",
       show: false,
       ifClose:true,
-      ifOldPasswordCorrect:""
+      ifOldPasswordCorrect:"",
+      invitationCode:"FES35D"
     }
   },
   methods:{
@@ -120,13 +125,30 @@ export default {
       }else{
         done();
       }
-
     },
     changePassword(){
       this.ifClose=true;
     },
     cancel(){
       this.ifClose=false;
+    },
+    cashWithdrawal(){
+      this.$router.push('/cashWithdrawal')
+    },
+    preview(){
+      this.$router.push('/previewUser');
+    },
+    next() {
+      this.$router.push('/nextUser');
+    },
+    copySuccess(e){
+      // console.log('copy',e.text)
+    },
+    copyError(e){
+      // console.log('failed',e)
+    },
+    alipayInfo(){
+      this.$router.push('/alipayInfo');
     }
   },
   created(){
@@ -136,10 +158,8 @@ export default {
     })
   }
 }
-
-
 </script>
-
+http://localhost:8080/#/register?code=FES35D
 <style lang="scss" scoped>
   header{
     background: #26a2ff;

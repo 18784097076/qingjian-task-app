@@ -3,12 +3,14 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import axios from 'axios'
+import VueClipboard   from 'vue-clipboard2'
 import 'vant/lib/index.css'
-// import {Button,Field,Toast,NavBar,Tabbar, TabbarItem,Icon,Panel,Tab,Tabs,List} from 'vant'
 import {Button,Field,Toast,NavBar,Tabbar,TabbarItem,Icon,Panel,Tab,Tabs,List,Popup,DatetimePicker,Dialog,Progress} from 'vant';
 
 Vue.config.productionTip = false
 Vue.prototype.axios = axios
+
+
 
 /**
  * 请求拦截器
@@ -21,7 +23,7 @@ Vue.prototype.axios.interceptors.request.use(config => {
   token && (config.headers.token = token);
   return config;
 }, error => Promise.error(error));
-
+Vue.use(VueClipboard);
 Vue.use(Button);
 Vue.use(Field);
 Vue.use(Toast);
