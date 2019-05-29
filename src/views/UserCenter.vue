@@ -18,6 +18,7 @@
               show-cancel-button
               @confirm="changePassword"
               @cancel="cancel"
+              :beforeClose="beforeClose"
       >
         <div>
           <van-field
@@ -25,6 +26,7 @@
                   type="password"
                   label="旧密码"
                   placeholder="请输入旧密码"
+                  :error-message="ifOldPasswordCorrect"
           />
           <van-field
                   v-model="password"
@@ -44,10 +46,10 @@
       </van-dialog>
     </section>
   </div>
-
 </template>
 
 <script>
+  // import {Dialog} from 'vant';
 export default {
   data(){
     return{
@@ -57,7 +59,9 @@ export default {
       password:"",
       verifyPassword:"",
       msg:"",
-      show: false
+      show: false,
+      ifClose:true,
+      ifOldPasswordCorrect:""
     }
   },
   methods:{
@@ -68,8 +72,15 @@ export default {
       this.$router.push('/pay');
     },
     loginOut(){
-      localStorage.removeItem('token');
-      this.$router.push('/login');
+      this.$dialog.confirm({
+        title: '退出登录',
+        message: '你确定要退出当前账户吗？'
+      }).then(() => {
+        localStorage.removeItem('token');
+        this.$router.push('/login');
+      }).catch(() => {
+
+      });
     },
     checkPassword(){
       this.msg="";
@@ -80,19 +91,42 @@ export default {
     updatePassword(){
       this.show=true;
     },
-    changePassword(){
+    beforeClose(action,done){
       let sha256 = require("js-sha256").sha256;
       let op = sha256(this.oldPassword);
       let np = sha256(this.password);
-      let params='op='+op+'&np='+np
-      this.axios.post('http://www.smctask.cn:8080/user/password',params).then(res=>{
-        if(res.data.code=='200'){
-          this.$toast('修改密码成功！')
+      let params='op='+op+'&np='+np;
+      if(this.ifClose){
+        if(this.msg==""){
+          this.axios.post('http://www.smctask.cn:8080/user/password',params).then(res=>{
+            if(res.data.code=='200'){
+              let that =this;
+              this.$toast({message:'修改密码成功，请重新登录！',onClose() {
+                  this.msg="";
+                  this.oldPassword="";
+                  this.verifyPassword="";
+                  this.password="";
+                  that.$router.push('/login');
+                },duration:2000});
+              done();
+            }else if(res.data.code=='500'){
+              this.ifOldPasswordCorrect="你输入的旧密码错误！";
+              done(false);
+            }
+          })
+        }else{
+          done(false);
         }
-      })
+      }else{
+        done();
+      }
+
+    },
+    changePassword(){
+      this.ifClose=true;
     },
     cancel(){
-
+      this.ifClose=false;
     }
   },
   created(){
@@ -102,6 +136,8 @@ export default {
     })
   }
 }
+
+
 </script>
 
 <style lang="scss" scoped>
