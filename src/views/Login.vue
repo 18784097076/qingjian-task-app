@@ -2,10 +2,12 @@
   <div class="login">
     <h3>任务平台</h3>
     <div class="login-info">
-      <van-field label="用户名" v-model="uname" placeholder="请输入用户名" @blur="unameBlur" autofocus/>
+      <van-field label="用户名" v-model="uname" placeholder="请输入用户名" @blur="unameBlur"/>
       <van-field type="password" label="密码" v-model="upwd" placeholder="请输入密码"  @blur="upwdBlur"/>
-      <van-button type="info" size="large" round style="margin-top:20px;" @click="loginSubmit">登录</van-button>
-      <van-button size="large" round style="margin-top:10px;" @click="toRegister">注册</van-button>
+      <van-button type="info" size="large" round style="margin:20px 0 10px;" @click="loginSubmit">登录</van-button>
+      <!-- <van-button size="large" round style="margin-top:10px;" @click="toRegister">注册</van-button> -->
+      <button @click="toRegister" class="register pwd">新用户注册</button>
+      <button @click="findPwd" class="find-pwd pwd">找回密码</button>
     </div>
   </div>
 </template>
@@ -60,6 +62,9 @@ export default {
     },
     toRegister(){
       this.$router.push('/register');
+    },
+    findPwd(){
+      this.$router.push('/findPwd');
     }
   }
 }
@@ -70,6 +75,19 @@ export default {
   padding:0 10%;
   .login-info{
     margin:40px 0;
+    .register{
+      float: left;
+    }
+    .pwd{
+      border:none;
+      font-size:14px;
+      background: transparent;
+      color:#1989fa;
+      padding:10px;
+    }
+    .find-pwd{
+      float: right;
+    }
   }
 }
 </style>
