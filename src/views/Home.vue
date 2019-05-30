@@ -33,15 +33,24 @@ export default {
   },
   watch:{
     '$route'(){
-        if(this.$route.path=='/taskList'){
+       if(this.$route.path=='/taskList'){
           this.active = 0
-        }else if(this.$route.path=='/taskCenter'){
-          this.active = 1
-        }else if(this.$route.path=='/userCenter'){
-          this.active = 2
-        }
+    }else if(this.$route.path=='/taskCenter'){
+      this.active = 1
+    }else if(this.$route.path=='/userCenter'){
+      this.active = 2
     }
-    
+    }
+  },
+  mounted(){
+    if(this.$route.path=='/taskList'){
+          this.active = 0
+    }else if(this.$route.path=='/taskCenter'){
+      this.active = 1
+    }else if(this.$route.path=='/userCenter'||this.$route.path=='/income'||this.$route.path=='/pay'||
+    this.$route.path=='/cashWithdrawal'||this.$route.path=='/previewUser'||this.$route.path=='/nextUser'||this.$route.path=='/alipayInfo'){
+      this.active = 2
+    }
   }
 }
 </script>
