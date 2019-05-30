@@ -7,13 +7,43 @@
                     placeholder="你要提现的金额"
                     class="inputCash"
             />
+            <van-button type="danger">提现</van-button>
         </header>
         <section class="cashTitle">
             <p>提现规则：</p>
             <div class="toCashRules">
                 <p>1、提现金额必须大于10元</p>
                 <p>2、每天仅可提现一次</p>
-                <p></p>
+                <p>3、支付宝账户不可更换</p>
+            </div>
+        </section>
+        <section class="Alipay" :style="ifAlipay?displayBlock:displayNone">
+            <p>支付宝信息：</p>
+            <div class="AlipayUserInfo">
+                <p>真实姓名：{{AlipayRealName}}</p>
+                <p>支付宝账户：{{AlipayID}}</p>
+            </div>
+        </section>
+        <section :style="ifAlipay?displayNone:displayBlock" class="addAlipay">
+            <van-button type="info" :style="ifBindAlipay?displayBlock:displayNone" @touchstart="toBindAlipay" class="bindAlipayBtn">绑定支付宝账户</van-button>
+            <div id="bindAlipayInfo" :style="ifBindAlipay?displayNone:displayBlock">
+                <van-field
+                        v-model="AlipayRealName"
+                        required
+                        clearable
+                        label="真实姓名"
+                        placeholder="请输入您的真实姓名"
+                        :error-message="errRealName"
+                />
+                <van-field
+                        v-model="AlipayID"
+                        label="支付宝账户"
+                        placeholder="请输入您的支付账户"
+                        required
+                        :error-message="errID"
+                />
+                <p id="tips">支付宝账户绑定后不可更改</p>
+                <van-button type="info" style="margin-top: 20px" @touchstart="bind">确认绑定</van-button>
             </div>
         </section>
     </div>
@@ -25,8 +55,38 @@
             return{
                 toCash:0,
                 cash:"",
+                AlipayRealName:"",
+                AlipayID:"",
+                ifAlipay:false,
+                ifBindAlipay:true,
+                displayNone:{
+                    'display':'none'
+                },
+                displayBlock:{
+                    'display':'block',
+                },
+                errRealName:"",
+                errID:"",
             }
-        }
+        },
+        methods:{
+            toBindAlipay(){
+                this.ifBindAlipay=false;
+            },
+            bind(){
+                this.errRealName="";
+                this.errID="";
+                if(this.AlipayRealName==""){
+                    this.errRealName="请输入正确的姓名";
+                }else if(this.AlipayID==""){
+                    this.errID="请输入正确的支付宝账户";
+                }else if(this.AlipayRealName!="" || this.AlipayID!=""){
+                    this.ifAlipay=true;
+                    this.errRealName="";
+                    this.errID="";
+                }
+            }
+        },
     }
 </script>
 
@@ -35,10 +95,12 @@
         width: 90%;
         margin:0 auto;
     }
-    header{
-
-    }
     .cashTitle p{
+        padding-top:20px;
+        text-align: left;
+        margin-bottom:20px;
+    }
+    .Alipay p{
         padding-top:20px;
         text-align: left;
         margin-bottom:20px;
@@ -49,12 +111,33 @@
         font-weight: bold;
     }
     .inputCash{
-        border:1px solid #26a2ff
+        border:1px solid #26a2ff;
+        margin-bottom:20px;
     }
     .toCashRules p{
         padding-left:2em;
         font-size: 14px;
-        line-height: 20px;
+        line-height: 30px;
         margin:0;
+        padding-top:0px;
+    }
+    .AlipayUserInfo p{
+        padding-left:2em;
+        font-size: 14px;
+        line-height: 30px;
+        margin:0;
+        padding-top:0px;
+    }
+    .addAlipay{
+        margin-top:20px;
+    }
+    .bindAlipayBtn{
+        margin:0 auto;
+    }
+    #tips{
+        margin-top:10px;
+        text-align: right;
+        color: red;
+        font-size: 12px;
     }
 </style>

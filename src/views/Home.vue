@@ -3,13 +3,13 @@
     <van-nav-bar class="header-bg" title="任务平台" left-text="返回" left-arrow  @click-left="onClickLeft" />
     <router-view></router-view>
     <van-tabbar v-model="active" route>
-      <van-tabbar-item replace  to="/taskList" icon="home-o">
+      <van-tabbar-item   to="/taskList" icon="home-o">
         抢单列表
       </van-tabbar-item>
-      <van-tabbar-item  replace  to="/taskCenter"  icon="search">
+      <van-tabbar-item    to="/taskCenter"  icon="search">
         任务中心
       </van-tabbar-item>
-      <van-tabbar-item  replace  to="/userCenter"  icon="contact">
+      <van-tabbar-item    to="/userCenter"  icon="contact">
         个人中心
       </van-tabbar-item>
     </van-tabbar>
@@ -17,8 +17,6 @@
 </template>
 
 <script>
-// @ is an alias to /src
-
 
 export default {
   data(){
@@ -40,7 +38,11 @@ export default {
     background:#26a2ff;
     .van-nav-bar__text,.van-icon,.van-nav-bar__title{
       color: #fff;
+
     }
   }
+}
+.van-nav-bar__left{
+  left:10px;
 }
 </style>

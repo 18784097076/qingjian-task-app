@@ -41,7 +41,9 @@ export default {
         let sha256 = require("js-sha256").sha256
         let safeUpwd = sha256(this.upwd)   //加密后的秘密
         this.axios.post('http://www.smctask.cn:8080/user/login',{account:this.uname,password:safeUpwd,role:3})
+        // this.axios.post('/api/u/sign_in?password='+this.upwd+'&phone='+this.uname)
                    .then(res=>{
+                     console.log(res.data.data.user.token)
                      if(res.data.code == 200){
                        //登录成功以后将token存在localStorage中
                        localStorage.setItem('token',res.data.data.user.token)

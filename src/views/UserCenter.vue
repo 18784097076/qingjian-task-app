@@ -1,17 +1,28 @@
 <template>
   <div>
     <header>
-      <p>{{username}}</p>
-      <p>余额：<span>￥{{balance}}</span></p>
+      <div class="personalInfo">
+        <p>{{username}}</p>
+        <p>余额：<span>￥{{balance}}</span></p>
+      </div>
+      <div class="taskInfo">
+        <p>任务总数: {{taskInfo.total}}</p>
+        <p>进行: {{taskInfo.running}}</p>
+        <p>成功: {{taskInfo.success}}</p>
+        <p>失败: {{taskInfo.failure}}</p>
+        <p>超时: {{taskInfo.timeout}}</p>
+        <p>成功率: {{(taskInfo.success/taskInfo.total).toFixed(2)*100+'%'}}</p>
+      </div>
+
     </header>
     <section>
       <ul>
         <li @touchstart="income"><span>收入</span> <van-icon name="arrow" class="icons" /></li>
         <li @touchstart="pay"><span>支出</span> <van-icon name="arrow" class="icons" /></li>
         <li @touchstart="cashWithdrawal"><span>提现</span> <van-icon name="arrow" class="icons" /></li>
-        <li @touchstart="alipayInfo"><span>支付宝账户</span> <van-icon name="arrow" class="icons" /></li>
-        <li @touchstart="preview"><span>上级信息</span> <van-icon name="arrow" class="icons" /></li>
+        <!--<li @touchstart="alipayInfo"><span>支付宝账户</span> <van-icon name="arrow" class="icons" /></li>-->
         <li @touchstart="next"><span>下级信息</span> <van-icon name="arrow" class="icons" /></li>
+        <li @touchstart="preview"><span>上级信息 : {{previewUser}} </span></li>
         <li><span>邀请码 : {{invitationCode}}</span><van-button type="info" class="icons" v-clipboard:copy="'http://localhost:8080/#/register?code='+invitationCode"  v-clipboard:success="copySuccess" v-clipboard:error="copyError">复制</van-button></li>
         <li @touchstart="updatePassword">修改密码</li>
         <li @touchstart="loginOut">退出登录</li>
@@ -66,7 +77,9 @@ export default {
       show: false,
       ifClose:true,
       ifOldPasswordCorrect:"",
-      invitationCode:"FES35D"
+      invitationCode:"FES35D",
+      taskInfo:{"total":100,"running":24,"success":22,"failure":22,"timeout":0},
+      previewUser:"15982706431"
     }
   },
   methods:{
@@ -159,22 +172,41 @@ export default {
   }
 }
 </script>
-http://localhost:8080/#/register?code=FES35D
 <style lang="scss" scoped>
   header{
     background: #26a2ff;
     padding:5px 0;
+    display:flex;
   }
-  header p{
+  header div{
+    flex: 1;
+  }
+  .personalInfo{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .personalInfo p{
     color:white;
     text-align: left;
     margin-left:10px;
     font-size: 14px;
-    line-height:24px;
+    line-height:30px;
   }
-  header p span{
+  .personalInfo span{
     font-size: 18px;
     font-style: italic;
+  }
+  .taskInfo{
+    display: flex;
+    flex-direction: column;
+  }
+  .taskInfo p{
+    flex:1;
+    font-size: 14px;
+    color:white;
+    text-align: left;
+    padding-left:30px;
   }
   ul{
     li{

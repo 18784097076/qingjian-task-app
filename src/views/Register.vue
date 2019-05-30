@@ -15,7 +15,7 @@
                         v-model="verifyCode"
                         label="验证码"
                 />
-                <van-button type="info" class="getVerifyCode" @click="getVerifyCode" :disabled="ifDisabled">获取验证码</van-button>
+                <van-button type="info" class="getVerifyCode" @touchstart="getVerifyCode" :disabled="ifDisabled">获取验证码</van-button>
             </div>
 
             <van-field
@@ -39,10 +39,9 @@
                     value="code"
                     disabled
             />
-
         </section>
         <footer>
-            <van-button type="info" class="registerCommit">注册</van-button>
+            <van-button type="info" class="registerCommit" @touchstart="register">注册</van-button>
             <span @click="returnToLogin">返回登录</span>
         </footer>
     </div>
@@ -54,7 +53,7 @@
             return{
                 phone:'',
                 password:'',
-                code:'',
+                code:'AJQNS28ABO',
                 verifyCode:'',
                 verifyPassword:'',
                 num:60,
@@ -64,6 +63,10 @@
         },
         methods:{
             getVerifyCode(ev){
+                let phone=this.phone;
+                this.axios.post('/api/code/phone?number='+phone+'&type=1').then(res=>{
+                    console.log(res)
+                })
                 this.ifDisabled=true;
                 ev.target.innerText=this.num+'s后重新获取';
                 let that=this;
@@ -87,10 +90,23 @@
             },
             returnToLogin(){
                 this.$router.push('/login');
+            },
+            register(){
+                this.axios.post(`/api/u/sign_up?inviteCode=${this.code}&password=${this.password}&phone=${this.phone}&phoneCode=${this.verifyCode}`).then(res=>{
+                    // console.log(res.data);
+                    if(res.data.code==200){
+                        let that=this;
+                        this.$toast({message:'注册成功! 即将前往登录!',onClose() {
+                                that.$router.push('/login');
+                            },duration:2000});
+                    }else{
+                        this.$toast({message:`${res.data.message}`})
+                    }
+                })
             }
         },
         mounted(){
-            this.code=this.$route.query.code;
+            // this.code=this.$route.query.code;
         }
     }
 

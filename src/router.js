@@ -12,6 +12,7 @@ import CashWithdrawal from './views/CashWithdrawal';
 import PreviewUser from './views/PreviewUser';
 import NextUser from './views/NextUser';
 import AlipayInfo from './views/AlipayInfo';
+import NextUserDetail from './views/NextUserDetail';
 
 Vue.use(Router)
 
@@ -35,6 +36,7 @@ export default new Router({
                 { path:'/previewUser',component:PreviewUser},
                 { path:'/nextUser',component:NextUser},
                 { path:'/alipayInfo',component:AlipayInfo},
+                { path:'/nextUserDetail/:index',component:NextUserDetail},
             ]
         }
     ]
