@@ -13,6 +13,7 @@ import PreviewUser from './views/PreviewUser';
 import NextUser from './views/NextUser';
 import AlipayInfo from './views/AlipayInfo';
 import NextUserDetail from './views/NextUserDetail';
+import FindPwd from './views/FindPwd'
 
 Vue.use(Router)
 
@@ -21,7 +22,7 @@ export default new Router({
         { path: '/', redirect: '/login' },
         { path: '/login', component: Login },
         { path:'/Register',component:Register},
-
+        { path:'/findPwd',component:FindPwd},
         {
             path: '/home',
             component: Home,

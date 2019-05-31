@@ -1,40 +1,5 @@
 <template>
   <div class="task-center">
-    <div class="query-btn">
-      <span>选择日期 : </span><van-button plain type="info" size="small" @click="queryTask">{{queryTime.toLocaleDateString()}}</van-button>
-    </div>
-    <van-popup v-model="showDatePicker" style="width:100%;">
-      <van-datetime-picker @confirm="confirmDate" @cancel="cancelDate" v-model="currentDate" type="date" :min-date="minDate"/>
-    </van-popup>
-    <table>
-      <tr>
-          <td>类别</td>
-          <td>总数</td>
-          <td>进行中</td>
-          <td>成功</td>
-          <td>失败</td>
-          <td>超时</td>
-          <td>成功率</td>
-      </tr>
-      <tr>
-        <td>个人</td>
-        <td>{{individual.total}}</td>
-        <td>{{individual.running}}</td>
-        <td>{{individual.success}}</td>
-        <td>{{individual.failure}}</td>
-        <td>{{individual.timeout}}</td>
-        <td>{{isNaN(individual.success/individual.total)?'--':(individual.success/individual.total).toFixed(2)+'%'}}</td>
-      </tr>
-      <tr>
-        <td>团队</td>
-        <td>{{team.total}}</td>
-        <td>{{team.running}}</td>
-        <td>{{team.success}}</td>
-        <td>{{team.failure}}</td>
-        <td>{{team.timeout}}</td>
-        <td>{{ isNaN(team.success/team.total)?'--':(team.success/team.total).toFixed(2)+'%'}}</td>
-      </tr>
-  </table>
     <van-tabs v-model="active" @click="handleClick" title-active-color="#1989fa" color="#1989fa">
       <van-tab title="进行中">
         <div class="task-list" v-if="ongoingTask.length > 0">
@@ -45,6 +10,7 @@
               <van-button type="info" size="small" @click="taskDetail(item.status,item.qrUrl)">查看详情</van-button>
             </div>
           </div>
+          <van-button size="large" type="info" @click="loadMoreRunningTask" round>加载更多</van-button>
         </div>
         <div style="padding-top:100px;" v-else>
           暂时还没有进行中的任务
@@ -59,8 +25,9 @@
               <van-button type="info" size="small" @click="taskDetail(item.status,item.qrUrl)">查看详情</van-button>
             </div>
           </div>
+          <van-button size="large" type="info" @click="loadMoreSuccessTask" round>加载更多</van-button>
         </div>
-        <div v-else>
+        <div style="padding-top:100px;" v-else>
           暂时还没有成功的任务
         </div>
       </van-tab>
@@ -73,8 +40,9 @@
               <van-button type="info" size="small" @click="taskDetail(item.status,item.qrUrl)">查看详情</van-button>
             </div>
           </div>
+          <van-button size="large" type="info" @click="loadMoreFailTask" round>加载更多</van-button>
         </div>
-        <div v-else>
+        <div style="padding-top:100px;" v-else>
           暂时还没有失败的任务
         </div>
       </van-tab>
@@ -104,7 +72,12 @@ export default {
       active:0,
       ongoingTask:[],
       successTask:[],
-      failTask:[],
+      failTask:[
+        {"id":703251,"phone":null,"qrUrl":"https://weixin110.qq.com/s/59e6f8fc689","createTime":1558939556238,"updateTime":1558939863865,"status":3,"publisher":"QAQ","receiver":null},
+        {"id":703246,"phone":"18026526927","qrUrl":"https://weixin110.qq.com/s/f6ef13f2780","createTime":1558939544950,"updateTime":1558940028259,"status":3,"publisher":"w002","receiver":null},
+        {"id":703234,"phone":"15302871064","qrUrl":"https://weixin110.qq.com/s/5f13997f9e0","createTime":1558939519754,"updateTime":1558940004323,"status":3,"publisher":"w001","receiver":null},
+        {"id":703228,"phone":"18925250409","qrUrl":"https://weixin110.qq.com/s/679d6efe1c4","createTime":1558939492846,"updateTime":1558939976911,"status":3,"publisher":"w002","receiver":null}
+      ],
       showDatePicker:false,
       minDate:new Date(2019,0,1),
       currentDate:new Date(),
@@ -112,67 +85,47 @@ export default {
       qrcodeData:'',
       taskStatus:'',
       qrcodeUrl:'',
-      individual:{},   //个人统计
-      team:{}     //团队统计
+      pnR:1,
+      totalPageR:0,
+      pnS:1,
+      totalPageS:0,
+      pnF:1,
+      totalPageF:0
     }
   },
   mounted(){
-    let start = new Date().getTime()
-    let end = start + 86400000 - 1
-    this.axios.get('http://www.smctask.cn:8080/user/team?start='+start+'&end='+end).then(res=>{
-      console.log('团队统计',res.data.data.statistic)
-      this.individual = res.data.data.statistic
+    //进行中的任务
+    this.axios.get(`/api/task/claimed?pn=${this.pnR}&ps=10&status=1`).then(res=>{
+      //console.log(res.data.data.list)
+      this.ongoingTask = res.data.data.list.list
+      this.totalPageR = Math.ceil(res.data.data.list.total/10)
     })
-    this.axios.get('http://www.smctask.cn:8080/task/statistic?start='+start+'&end='+end).then(res=>{
-      console.log('个人统计',res.data.data.statistic)
-      this.team = res.data.data.statistic
+    this.axios.get(`/api/task/claimed?pn=${this.pnS}&ps=10&status=2`).then(res=>{
+      console.log(res.data.data.list.list)
+      this.successTask = res.data.data.list.list
+      this.totalPageS = Math.ceil(res.data.data.list.total/10)
     })
+    // this.axios.get(`/api/task/claimed?pn=${this.pnF}&ps=10&status=3`).then(res=>{
+    //   console.log(res.data.data.list.list)
+    //   this.failTask = res.data.data.list.list
+    // })
   },
   methods:{
     handleClick(index,title){
-      if(index==0){
-        this.axios.get('http://www.smctask.cn:8080/task/claimed?pn=1&status=1').then(res=>{
-          console.log(res.data.data.list.list)
-          this.ongoingTask = res.data.data.list.list
-        })
-      }else if(index==1){
-        console.log('点击了成功')
-        this.axios.get('http://www.smctask.cn:8080/task/claimed?pn=1&status=2').then(res=>{
-          console.log(res.data.data.list.list)
-          this.successTask = res.data.data.list.list
-        })
-      }else if(index==2){
-        console.log('点击了失败')
-        this.axios.get('http://www.smctask.cn:8080/task/claimed?pn=1&status=3').then(res=>{
-          console.log(res.data.data.list.list)
-          this.failTask = res.data.data.list.list
-        })
-      }
-    },
-    queryTask(){
-      //点击按钮，弹出日期选择
-      this.showDatePicker = true
-    },
-    confirmDate(value){
-      //点击确定,获取到选中的日期,查询选中的日期的任务统计
-      this.showDatePicker = false
-      let start = new Date(value).getTime()
-      let end = start + 86400000 - 1
-      //console.log(start,end)
-      //团队 http://www.smctask.cn:8080/user/team?start=1551369600000&end=1559059199000
-      //个人 http://www.smctask.cn:8080/task/statistic?start=1551369600000&end=1559059199000
-      this.axios.get('http://www.smctask.cn:8080/user/team?start='+start+'&end='+end).then(res=>{
-        console.log('团队统计',res.data.data.statistic)
-        this.individual = res.data.data.statistic
-      })
-      this.axios.get('http://www.smctask.cn:8080/task/statistic?start='+start+'&end='+end).then(res=>{
-        console.log('个人统计',res.data.data.statistic)
-        this.team = res.data.data.statistic
-      })
-    },
-    cancelDate(){
-      this.showDatePicker = false
-      console.log('点击了取消')
+      // if(index==1){
+      //   console.log('点击了成功')
+      //   this.axios.get(`/api/task/claimed?pn=${this.pnS}&ps=10&status=2`).then(res=>{
+      //     console.log(res.data.data.list.list)
+      //     this.successTask = res.data.data.list.list
+      //     this.totalPageS = Math.ceil(res.data.data.list.total/10)
+      //   })
+      // }else if(index==2){
+      //   console.log('点击了失败')
+      //   this.axios.get(`/api/task/claimed?pn=${this.pnF}&ps=10&status=3`).then(res=>{
+      //     console.log(res.data.data.list.list)
+      //     this.failTask = res.data.data.list.list
+      //   })
+      // }
     },
     taskDetail(status,qrurl){
       console.log('查看任务详情')
@@ -195,6 +148,36 @@ export default {
           return 'blue'
         }
     },
+    loadMoreRunningTask(){
+      //加载更多进行中的任务
+      if(this.pnR<this.totalPageR){
+        this.pnR++
+        this.axios.get(`/api/task/claimed?pn=${this.pnR}&ps=10&status=1`).then(res=>{
+          console.log(res.data.data.list.list)
+          this.ongoingTask = this.ongoingTask.concat(res.data.data.list.list)
+        })
+      }
+    },
+    loadMoreSuccessTask(){
+      //加载更多成功的任务
+      if(this.pnS<this.totalPageS){
+        this.pnS++
+        this.axios.get(`/api/task/claimed?pn=${this.pnS}&ps=10&status=2`).then(res=>{
+          console.log(res.data.data.list.list)
+          this.successTask = this.ongoingTask.concat(res.data.data.list.list)
+        })
+      }
+    },
+    loadMoreFailTask(){
+      //加载更多失败的任务
+      if(this.pnF<this.totalPageF){
+        this.pnF++
+        this.axios.get(`/api/task/claimed?pn=${this.pnF}&ps=10&status=3`).then(res=>{
+          console.log(res.data.data.list.list)
+          this.failTask = this.ongoingTask.concat(res.data.data.list.list)
+        })
+      }
+    }
   }
 }
 </script>task

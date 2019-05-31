@@ -5,7 +5,7 @@ import store from './store'
 import axios from 'axios'
 import VueClipboard   from 'vue-clipboard2'
 import 'vant/lib/index.css'
-import {Button,Field,Toast,NavBar,Tabbar,TabbarItem,Icon,Panel,Tab,Tabs,List,Popup,DatetimePicker,Dialog,Progress} from 'vant';
+import {Button,Field,Toast,NavBar,Tabbar,TabbarItem,Icon,Panel,Tab,Tabs,List,Popup,DatetimePicker,Dialog,Progress,CellGroup} from 'vant';
 
 Vue.config.productionTip = false
 Vue.prototype.axios = axios
@@ -37,6 +37,7 @@ Vue.use(Popup);
 Vue.use(DatetimePicker);
 Vue.use(Dialog);
 Vue.use(Progress);
+Vue.use(CellGroup);
 
 Vue.filter('dateTime', (val) => {
   var date = new Date(val);
@@ -60,6 +61,16 @@ Vue.filter('status', (val) => {
   }else if(val ==1 ){
       return '进行中'
   }
+})
+
+//倒计时过滤器
+Vue.filter('countdown',(val)=>{
+  console.log(val)
+  var ts = parseInt(val/1000)
+  console.log(ts)
+  var m = parseInt(ts/60)<10?'0'+parseInt(ts/60):parseInt(ts/60)
+  var s = ts%60<10?'0'+ts%60:ts%60
+  return `${m}:${s}`
 })
 
 new Vue({

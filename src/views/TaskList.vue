@@ -9,7 +9,8 @@
       <van-panel v-for="(item,i) of taskList" :key="i" class="task-item" :title="'任务ID:'+item.id" 
       :desc="item.createTime|dateTime" status="赏金">
         <div style="display:flex;padding:15px;justify-content:space-between">
-          <div>倒计时</div>
+          <div v-if="item.createTime+300000-nowTime>0">倒计时{{(item.createTime+300000 - nowTime)|countdown}}</div>
+          <div v-else><van-button size="small" type="danger">任务失败</van-button></div>
           <div>
             <van-button type="primary" size="small" @click="getTask(item.id)">领取任务</van-button>
           </div>
@@ -18,7 +19,23 @@
     </div>
     <div v-else style="margin-top:100px">
         暂时还没有任务,点击按钮刷新
+    </div>
+    <van-dialog v-model="showTaskDetail" style="text-align:center">
+      <div class="card">
+        <div class="card-header" style="text-align:left;padding:10px 15px;font-size:14px;">
+            <!-- <span>任务详情</span>
+            <span :style="{color:getColor(taskStatus)}">{{taskStatus | status}}</span> -->
+            <p>发布人:{{taskDetail.publisher}}</p>
+            <p>{{taskDetail.createTime | dateTime}}</p>
+        </div>
+        <div class="card-content">
+            <img :src="qrcodeData">
+        </div>
+        <div class="card-footer">
+            {{taskDetail.qrUrl}}
+        </div>
       </div>
+    </van-dialog>
   </div>
 </template>
 
@@ -26,23 +43,41 @@
 export default {
   data(){
     return {
-      taskList:[],
-      progress:0
+      taskList:[
+        {"id":585814,"phone":"18023197334","qrUrl":"https://weixin110.qq.com/s/6e2fb9fd3f3","createTime":1559289708774,"updateTime":1557655261705,"publisher":"W007"},
+        {"id":585795,"phone":"18165797402","qrUrl":"https://weixin110.qq.com/s/5c26503096a","createTime":1559289888888,"updateTime":1557655221227,"publisher":"W007"},
+        {"id":585783,"phone":"17728288079","qrUrl":"https://weixin110.qq.com/s/a371321b07b","createTime":1559289798899,"updateTime":1557655202726,"publisher":"W007"}
+      ],
+      progress:0,
+      pn:1,
+      totalPage:0,     //一共有多少页
+      taskDetail:{"id":585814,"phone":"18023197334","qrUrl":"https://weixin110.qq.com/s/6e2fb9fd3f3","createTime":1557654952814,"updateTime":1557655261705,"publisher":"W007"},
+      showTaskDetail:false,
+      qrcodeData:'',
+      nowTime:new Date().getTime()
     }
   },
   mounted(){
-    this.axios.get('http://www.smctask.cn:8080/task/claimable?pn=1&ps=10').then((res)=>{    
-            this.taskList = res.data.data.list.list
-            console.log(this.taskList)
-        })
+    // this.axios.get(`/api/task/claimable?pn=${this.pn}&ps=10`).then((res)=>{    
+    //     console.log(res)
+    //         this.taskList = res.data.data.list.list
+    //         console.log(this.taskList)
+    //         this.totalPage = Math.ceil(res.data.data.list.total/10)
+    //         console.log(this.totalPage)
+    //     })
+    let timer = window.setInterval(()=>{
+      this.nowTime = new Date().getTime()
+    },1000)
   },
   methods:{
     replayTaskList(){
-      //点击刷新
-      this.axios.get('http://www.smctask.cn:8080/task/claimable?pn=1&ps=10').then((res)=>{    
-            this.taskList = res.data.data.list.list
-            console.log(this.taskList)
-        })
+      //点击刷新,如果当前页小于总页数
+      if(this.pn<this.totalPage){
+        this.pn++
+        this.axios.get(`/api/task/claimable?pn=${this.pn}&ps=10`).then((res)=>{    
+              this.taskList = res.data.data.list.list.concat(this.taskList)
+          })
+      }
       let timer=window.setInterval(()=>{
         this.progress += 1
         if(this.progress >= 100){
@@ -53,15 +88,19 @@ export default {
     },
     getTask(tid){
       //领取任务
-      this.axios.put('http://www.smctask.cn:8080/task/claim?tid='+tid).then(res=>{
-        if(res.code == 200){
-          console.log('领取任务成功')
-        }else{
-          Toast({
-            message: '领取失败',
-            duration: 1000
-            });  
-        }
+      this.axios.put('/api/task/claim?tid='+tid).then(res=>{
+        // if(res.code == 200){
+          //this.taskDetail = res.data.info
+          var qrcode = require('qrcode')
+          qrcode.toDataURL(this.taskDetail.qrUrl,{
+              errorCorrectionLevel:'H'
+          },(err,url)=>{
+              this.qrcodeData = url
+          })
+          this.showTaskDetail = true
+        // }else{
+        //   this.$toast("领取失败") 
+        // }
       })
     }
   }

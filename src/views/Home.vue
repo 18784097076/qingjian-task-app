@@ -3,13 +3,13 @@
     <van-nav-bar class="header-bg" title="任务平台" left-text="返回" left-arrow  @click-left="onClickLeft" />
     <router-view></router-view>
     <van-tabbar v-model="active" route>
-      <van-tabbar-item   to="/taskList" icon="home-o">
+      <van-tabbar-item to="/taskList" icon="home-o">
         抢单列表
       </van-tabbar-item>
-      <van-tabbar-item    to="/taskCenter"  icon="search">
+      <van-tabbar-item to="/taskCenter"  icon="search">
         任务中心
       </van-tabbar-item>
-      <van-tabbar-item    to="/userCenter"  icon="contact">
+      <van-tabbar-item to="/userCenter"  icon="contact">
         个人中心
       </van-tabbar-item>
     </van-tabbar>
@@ -26,7 +26,9 @@ export default {
   },
   methods:{
     onClickLeft(){
-      this.$router.go(-1)
+      if(this.$route.path!='/taskList'){
+        this.$router.go(-1)
+      }
     }
   },
   watch:{
