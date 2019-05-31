@@ -6,12 +6,22 @@
         <p>余额：<span>￥{{balance}}</span></p>
       </div>
       <div class="taskInfo">
+        <p :style="ifAgent?displayBlock:displayNone"><span style="color: black">个人：</span></p>
         <p>任务总数: {{taskInfo.total}}</p>
         <p>进行: {{taskInfo.running}}</p>
         <p>成功: {{taskInfo.success}}</p>
         <p>失败: {{taskInfo.failure}}</p>
         <p>超时: {{taskInfo.timeout}}</p>
         <p>成功率: {{(taskInfo.success/taskInfo.total).toFixed(2)*100+'%'}}</p>
+      </div>
+      <div class="taskInfo" :style="ifAgent?displayBlock:displayNone">
+        <p><span style="color: black">团队：</span></p>
+        <p>任务总数: {{teamInfo.total}}</p>
+        <p>进行: {{teamInfo.running}}</p>
+        <p>成功: {{teamInfo.success}}</p>
+        <p>失败: {{teamInfo.failure}}</p>
+        <p>超时: {{teamInfo.timeout}}</p>
+        <p>成功率: {{(teamInfo.success/teamInfo.total).toFixed(2)*100+'%'}}</p>
       </div>
 
     </header>
@@ -22,9 +32,9 @@
         <li @touchstart="cashWithdrawal"><span>提现</span> <van-icon name="arrow" class="icons" /></li>
         <!--<li @touchstart="alipayInfo"><span>支付宝账户</span> <van-icon name="arrow" class="icons" /></li>-->
         <li @touchstart="next"><span>下级信息</span> <van-icon name="arrow" class="icons" /></li>
-        <li @touchstart="preview"><span>上级信息 : {{previewUser}} </span></li>
-        <li><span>邀请码 : {{invitationCode}}</span><van-button type="info" class="icons" v-clipboard:copy="'http://localhost:8080/#/register?code='+invitationCode"  v-clipboard:success="copySuccess" v-clipboard:error="copyError">复制</van-button></li>
-        <li @touchstart="updatePassword">修改密码</li>
+        <li @touchstart="preview"><span>上级信息 : &nbsp;&nbsp;{{previewUser}} </span></li>
+        <li><span>邀请码 : &nbsp;&nbsp;{{invitationCode}}</span><van-button type="info" class="icons" v-clipboard:copy="'http://localhost:8080/#/register?code='+invitationCode"  v-clipboard:success="copySuccess" v-clipboard:error="copyError">复制</van-button></li>
+        <li @click="updatePassword">修改密码</li>
         <li @touchstart="loginOut">退出登录</li>
       </ul>
       <van-dialog
@@ -77,9 +87,17 @@ export default {
       show: false,
       ifClose:true,
       ifOldPasswordCorrect:"",
-      invitationCode:"FES35D",
-      taskInfo:{"total":100,"running":24,"success":22,"failure":22,"timeout":0},
-      previewUser:"15982706431"
+      invitationCode:"",
+      taskInfo:{},
+      previewUser:"",
+      ifAgent:true,
+      displayNone:{
+        'display':'none'
+      },
+      displayBlock:{
+        'display':'block',
+      },
+      teamInfo:{},
     }
   },
   methods:{
@@ -116,7 +134,8 @@ export default {
       let params='op='+op+'&np='+np;
       if(this.ifClose){
         if(this.msg==""){
-          this.axios.post('http://www.smctask.cn:8080/user/password',params).then(res=>{
+          //this.axios.post('http://www.smctask.cn:8080/user/password',params).then(res=>{
+          this.axios.post('/api/u/password?np='+this.password+'&op='+this.oldPassword).then(res=>{
             if(res.data.code=='200'){
               let that =this;
               this.$toast({message:'修改密码成功，请重新登录！',onClose() {
@@ -160,14 +179,37 @@ export default {
     copyError(e){
       // console.log('failed',e)
     },
-    alipayInfo(){
-      this.$router.push('/alipayInfo');
-    }
+    // alipayInfo(){
+    //   this.$router.push('/alipayInfo');
+    // }
   },
   created(){
-    this.axios.get('http://www.smctask.cn:8080/user/detail').then(res=>{
-      this.username=res.data.data.detail.nickname;
-      this.balance=res.data.data.detail.balance.toFixed(2);
+    let roleId=localStorage.getItem('roleId');
+    if(roleId==3){
+      this.ifAgent=true;
+    }else{
+      this.ifAgent=false;
+    }
+    //this.axios.get('http://www.smctask.cn:8080/user/detail').then(res=>{
+    this.axios.get('/api/u/info').then(res=>{
+      if(res.data.code==200){
+        this.invitationCode=res.data.data.detail.inviteCode
+        this.username=res.data.data.detail.nickname;
+        this.balance=res.data.data.detail.balance.toFixed(2);
+        let end=new Date().getTime();
+        this.axios.get('/api/task/statistic?end='+end+'&start=0').then(res=>{
+          this.taskInfo=res.data.data.statistic;
+        }).then(this.axios.get('/api/team/statistic?end='+end+'&start=0').then(res=>{
+          this.teamInfo=res.data.data.statistic;
+        }).then(this.axios.get('/api/team/member?pn=1&ps=10').then(res=>{
+          this.previewUser=res.data.data.pname;
+        })))
+      }else{
+        let that=this;
+        this.$toast({message:'您的身份已过期,请重新登陆!',onClose() {
+            that.$router.push('/login');
+          },duration:2000});
+      }
     })
   }
 }
@@ -203,10 +245,10 @@ export default {
   }
   .taskInfo p{
     flex:1;
-    font-size: 14px;
+    font-size: 12px;
     color:white;
     text-align: left;
-    padding-left:30px;
+    padding-left:20px;
   }
   ul{
     li{

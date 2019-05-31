@@ -7,7 +7,7 @@
                     placeholder="你要提现的金额"
                     class="inputCash"
             />
-            <van-button type="danger">提现</van-button>
+            <van-button type="danger" @touchstart="tocash">提现</van-button>
         </header>
         <section class="cashTitle">
             <p>提现规则：</p>
@@ -57,7 +57,7 @@
                 cash:"",
                 AlipayRealName:"",
                 AlipayID:"",
-                ifAlipay:false,
+                ifAlipay:true,
                 ifBindAlipay:true,
                 displayNone:{
                     'display':'none'
@@ -81,12 +81,43 @@
                 }else if(this.AlipayID==""){
                     this.errID="请输入正确的支付宝账户";
                 }else if(this.AlipayRealName!="" || this.AlipayID!=""){
-                    this.ifAlipay=true;
-                    this.errRealName="";
-                    this.errID="";
+                    this.axios.post('/api/u/pay?payAccount='+this.AlipayID+'&payName='+this.AlipayRealName).then(res=>{
+                        if(res.data.code=200){
+                            let that =this;
+                            this.$toast({message:'支付宝绑定成功！',onClose() {
+                                    that.ifAlipay=true;
+                                    that.errRealName="";
+                                    that.errID="";
+                                },duration:1000});
+                        }else{
+                            this.$toast({message:res.data.message})
+                        }
+                    })
+
                 }
+            },
+            tocash(){
+                this.axios.post('/api/bill/apply/withdraw?amount='+this.cash).then(res=>{
+                    if(res.data.code==200){
+                        this.$toast({message:'提现成功!'})
+                    }else{
+                        this.$toast({message:res.data.message})
+                    }
+                })
             }
         },
+        created(){
+            this.axios.get('/api/u/info').then(res=>{
+                this.toCash=Number(res.data.data.detail.balance);
+                if(!res.data.data.detail.payAccount){
+                    this.ifAlipay=false;
+                }else{
+                    this.ifAlipay=true;
+                    this.AlipayRealName=res.data.data.detail.payName;
+                    this.AlipayID=res.data.data.detail.payAccount;
+                }
+            })
+        }
     }
 </script>
 

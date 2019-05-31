@@ -53,7 +53,7 @@
             return{
                 phone:'',
                 password:'',
-                code:'AJQNS28ABO',
+                code:'W47JCD7FAA',
                 verifyCode:'',
                 verifyPassword:'',
                 num:60,
@@ -65,22 +65,26 @@
             getVerifyCode(ev){
                 let phone=this.phone;
                 this.axios.post('/api/code/phone?number='+phone+'&type=1').then(res=>{
-                    console.log(res)
-                })
-                this.ifDisabled=true;
-                ev.target.innerText=this.num+'s后重新获取';
-                let that=this;
-                let timer=setInterval(function () {
-                    if(that.num>1){
-                        parseInt(that.num--);
-                        ev.target.innerText=that.num+'s后重新获取';
-                    } else if(that.num==1){
-                        that.ifDisabled=false;
-                        ev.target.innerText='重新获取';
-                        that.num=60;
-                        clearInterval(timer)
+                    if(res.data.code==200){
+                        this.ifDisabled=true;
+                        ev.target.innerText=this.num+'s后重新获取';
+                        let that=this;
+                        let timer=setInterval(function () {
+                            if(that.num>1){
+                                parseInt(that.num--);
+                                ev.target.innerText=that.num+'s后重新获取';
+                            } else if(that.num==1){
+                                that.ifDisabled=false;
+                                ev.target.innerText='重新获取';
+                                that.num=60;
+                                clearInterval(timer)
+                            }
+                        },1000);
+                    } else{
+                        this.$toast({message:`${res.data.message}`})
                     }
-                },1000);
+                })
+
             },
             checkPassword(){
                 this.msg="";
@@ -93,7 +97,6 @@
             },
             register(){
                 this.axios.post(`/api/u/sign_up?inviteCode=${this.code}&password=${this.password}&phone=${this.phone}&phoneCode=${this.verifyCode}`).then(res=>{
-                    // console.log(res.data);
                     if(res.data.code==200){
                         let that=this;
                         this.$toast({message:'注册成功! 即将前往登录!',onClose() {
@@ -106,7 +109,7 @@
             }
         },
         mounted(){
-            // this.code=this.$route.query.code;
+            this.code=this.$route.query.code;
         }
     }
 
