@@ -21,7 +21,7 @@
         <span v-else>{{this.num}}s后重新获取</span>
       </van-button>
       </van-field>
-       <van-field label="新密码" v-model="newPwd" placeholder="请输入新密码" :error-message="newPwdMsg" @blur="verifyNewPwd" @focus="newPwdMsg=''"/>
+       <van-field label="新密码" type="password" v-model="newPwd" placeholder="请输入新密码" :error-message="newPwdMsg" @blur="verifyNewPwd" @focus="newPwdMsg=''"/>
     </van-cell-group>
     <div style="padding:20px 15px;">
       <van-button type="info" size="large" round @click="resetPwd">确定</van-button>
@@ -52,17 +52,23 @@ export default {
     },
     getCode(){
       if(this.validPhone){
-        this.canGetCode = false;
-        let timer = window.setInterval(()=>{
-          this.num--;
-          if(this.num<=1){
-            this.num=30
-            this.canGetCode = true
-            window.clearInterval(timer)
-          }
-        },1000)
-        this.axios.post("/code/phone",{number:this.phone,type:2}).then(res=>{
+        this.axios.post(`/api/code/phone?number=${this.phone}&type=2`).then(res=>{
           console.log(res)
+          if(res.data.code==200){
+            this.validPhone = true
+            this.canGetCode = false;
+            let timer = window.setInterval(()=>{
+              this.num--;
+              if(this.num<=1){
+                this.num=30
+                this.canGetCode = true
+                window.clearInterval(timer)
+              }
+            },1000)
+          }else if(res.data.code==500){
+            this.validPhone = false
+            this.phoneMsg = res.data.message
+          }    
         })
       }
     },
@@ -95,9 +101,13 @@ export default {
     resetPwd(){
       if(this.validPhone&&this.validCode&&this.validNewPwd){
         console.log('可以发送请求了')
-        // this.axios.post(`/api/u/find?code=${this.code}&password=${this.newPwd}&phone=${this.phone}`).then(res=>{
-        //   console.log(res)
-        // })
+         this.axios.post(`/api/u/find?code=${this.code}&password=${this.newPwd}&phone=${this.phone}`).then(res=>{
+           if(res.data.code==200){
+             console.log('可以发送请求了')
+           }else if(res.data.code==500){
+             this.codeMsg=res.data.message
+           } 
+         })
       }else{
         console.log('还不能发送请求')
       }
