@@ -63,6 +63,16 @@ Vue.filter('status', (val) => {
   }
 })
 
+//倒计时过滤器
+Vue.filter('countdown',(val)=>{
+  console.log(val)
+  var ts = parseInt(val/1000)
+  console.log(ts)
+  var m = parseInt(ts/60)<10?'0'+parseInt(ts/60):parseInt(ts/60)
+  var s = ts%60<10?'0'+ts%60:ts%60
+  return `${m}:${s}`
+})
+
 new Vue({
   router,
   store,
