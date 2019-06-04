@@ -2,7 +2,7 @@
   <div class="task-center">
     <van-tabs v-model="active" @click="handleClick" title-active-color="#1989fa" color="#1989fa">
       <van-tab title="进行中">
-        <div class="task-list" v-if="ongoingTask.length > 0">
+        <div class="task-list" v-if="ongoingTask.length > 0" style="padding-bottom:20px;">
           <div  class="task-list-item" v-for="(item,i) in ongoingTask" :key="i">
             <p>创建时间:{{item.createTime|dateTime}}</p>
             <div class="task-desc">
@@ -10,14 +10,14 @@
               <van-button type="info" size="small" @click="taskDetail(item.status,item.qrUrl)">查看详情</van-button>
             </div>
           </div>
-          <van-button size="large" type="info" @click="loadMoreRunningTask" round>加载更多</van-button>
+          <van-button class="load-more" size="large" type="info" @click="loadMoreRunningTask" round>加载更多</van-button>
         </div>
         <div style="padding-top:100px;" v-else>
           暂时还没有进行中的任务
         </div>
       </van-tab>
       <van-tab title="成功">
-        <div class="task-list" v-if="successTask.length > 0">
+        <div class="task-list" v-if="successTask.length > 0" style="padding-bottom:20px;">
           <div  class="task-list-item" v-for="(item,i) in successTask" :key="i">
             <p>创建时间:{{item.createTime|dateTime}}</p>
             <div class="task-desc">
@@ -25,14 +25,14 @@
               <van-button type="info" size="small" @click="taskDetail(item.status,item.qrUrl)">查看详情</van-button>
             </div>
           </div>
-          <van-button size="large" type="info" @click="loadMoreSuccessTask" round>加载更多</van-button>
+          <van-button class="load-more" size="large" type="info" @click="loadMoreSuccessTask" round>加载更多</van-button>
         </div>
         <div style="padding-top:100px;" v-else>
           暂时还没有成功的任务
         </div>
       </van-tab>
       <van-tab title="失败">
-        <div class="task-list" v-if="failTask.length > 0">
+        <div class="task-list" v-if="failTask.length > 0" style="padding-bottom:20px;">
           <div  class="task-list-item" v-for="(item,i) in failTask" :key="i">
             <p>创建时间:{{item.createTime|dateTime}}</p>
             <div class="task-desc">
@@ -40,14 +40,14 @@
               <van-button type="info" size="small" @click="taskDetail(item.status,item.qrUrl)">查看详情</van-button>
             </div>
           </div>
-          <van-button size="large" type="info" @click="loadMoreFailTask" round>加载更多</van-button>
+          <van-button class="load-more" size="large" type="info" @click="loadMoreFailTask" round>加载更多</van-button>
         </div>
         <div style="padding-top:100px;" v-else>
           暂时还没有失败的任务
         </div>
       </van-tab>
     </van-tabs>
-    <van-dialog v-model="showTaskDetail" style="text-align:center">
+    <van-dialog confirmButtonText="关闭" v-model="showTaskDetail" style="text-align:center">
       <div class="card">
         <div class="card-header" style="display:flex;justify-content:space-between;padding:10px 15px;">
             <span>任务详情</span>
@@ -55,9 +55,6 @@
         </div>
         <div class="card-content">
             <img :src="qrcodeData">
-        </div>
-        <div class="card-footer">
-            {{qrcodeUrl}}
         </div>
       </div>
     </van-dialog>
@@ -73,10 +70,20 @@ export default {
       ongoingTask:[],
       successTask:[],
       failTask:[
-        {"id":703251,"phone":null,"qrUrl":"https://weixin110.qq.com/s/59e6f8fc689","createTime":1558939556238,"updateTime":1558939863865,"status":3,"publisher":"QAQ","receiver":null},
-        {"id":703246,"phone":"18026526927","qrUrl":"https://weixin110.qq.com/s/f6ef13f2780","createTime":1558939544950,"updateTime":1558940028259,"status":3,"publisher":"w002","receiver":null},
-        {"id":703234,"phone":"15302871064","qrUrl":"https://weixin110.qq.com/s/5f13997f9e0","createTime":1558939519754,"updateTime":1558940004323,"status":3,"publisher":"w001","receiver":null},
-        {"id":703228,"phone":"18925250409","qrUrl":"https://weixin110.qq.com/s/679d6efe1c4","createTime":1558939492846,"updateTime":1558939976911,"status":3,"publisher":"w002","receiver":null}
+        // {"id":703251,"phone":null,"qrUrl":"https://weixin110.qq.com/s/59e6f8fc689","createTime":1558939556238,"updateTime":1558939863865,"status":3,"publisher":"QAQ","receiver":null},
+        // {"id":703246,"phone":"18026526927","qrUrl":"https://weixin110.qq.com/s/f6ef13f2780","createTime":1558939544950,"updateTime":1558940028259,"status":3,"publisher":"w002","receiver":null},
+        // {"id":703234,"phone":"15302871064","qrUrl":"https://weixin110.qq.com/s/5f13997f9e0","createTime":1558939519754,"updateTime":1558940004323,"status":3,"publisher":"w001","receiver":null},
+        // {"id":703228,"phone":"18925250409","qrUrl":"https://weixin110.qq.com/s/679d6efe1c4","createTime":1558939492846,"updateTime":1558939976911,"status":3,"publisher":"w002","receiver":null},
+        // {"id":703228,"phone":"18925250409","qrUrl":"https://weixin110.qq.com/s/679d6efe1c4","createTime":1558939492846,"updateTime":1558939976911,"status":3,"publisher":"w002","receiver":null},
+        // {"id":703228,"phone":"18925250409","qrUrl":"https://weixin110.qq.com/s/679d6efe1c4","createTime":1558939492846,"updateTime":1558939976911,"status":3,"publisher":"w002","receiver":null},
+        // {"id":703228,"phone":"18925250409","qrUrl":"https://weixin110.qq.com/s/679d6efe1c4","createTime":1558939492846,"updateTime":1558939976911,"status":3,"publisher":"w002","receiver":null},
+        // {"id":703228,"phone":"18925250409","qrUrl":"https://weixin110.qq.com/s/679d6efe1c4","createTime":1558939492846,"updateTime":1558939976911,"status":3,"publisher":"w002","receiver":null},
+        // {"id":703228,"phone":"18925250409","qrUrl":"https://weixin110.qq.com/s/679d6efe1c4","createTime":1558939492846,"updateTime":1558939976911,"status":3,"publisher":"w002","receiver":null},
+        // {"id":703228,"phone":"18925250409","qrUrl":"https://weixin110.qq.com/s/679d6efe1c4","createTime":1558939492846,"updateTime":1558939976911,"status":3,"publisher":"w002","receiver":null},
+        // {"id":703228,"phone":"18925250409","qrUrl":"https://weixin110.qq.com/s/679d6efe1c4","createTime":1558939492846,"updateTime":1558939976911,"status":3,"publisher":"w002","receiver":null},
+        // {"id":703228,"phone":"18925250409","qrUrl":"https://weixin110.qq.com/s/679d6efe1c4","createTime":1558939492846,"updateTime":1558939976911,"status":3,"publisher":"w002","receiver":null},
+        // {"id":703228,"phone":"18925250409","qrUrl":"https://weixin110.qq.com/s/679d6efe1c4","createTime":1558939492846,"updateTime":1558939976911,"status":3,"publisher":"w002","receiver":null},
+        // {"id":703228,"phone":"18925250409","qrUrl":"https://weixin110.qq.com/s/679d6efe1c4","createTime":1558939492846,"updateTime":1558939976911,"status":3,"publisher":"w002","receiver":null}
       ],
       showDatePicker:false,
       minDate:new Date(2019,0,1),
@@ -105,10 +112,11 @@ export default {
       this.successTask = res.data.data.list.list
       this.totalPageS = Math.ceil(res.data.data.list.total/10)
     })
-    // this.axios.get(`/api/task/claimed?pn=${this.pnF}&ps=10&status=3`).then(res=>{
-    //   console.log(res.data.data.list.list)
-    //   this.failTask = res.data.data.list.list
-    // })
+    this.axios.get(`/api/task/claimed?pn=${this.pnF}&ps=10&status=3`).then(res=>{
+      console.log(res.data.data.list.list)
+      this.failTask = res.data.data.list.list
+      this.totalPageF = Math.ceil(res.data.data.list.total/10)
+    })
   },
   methods:{
     handleClick(index,title){
@@ -156,6 +164,8 @@ export default {
           console.log(res.data.data.list.list)
           this.ongoingTask = this.ongoingTask.concat(res.data.data.list.list)
         })
+      }else{
+        this.$toast('没有更多了')
       }
     },
     loadMoreSuccessTask(){
@@ -166,6 +176,8 @@ export default {
           console.log(res.data.data.list.list)
           this.successTask = this.ongoingTask.concat(res.data.data.list.list)
         })
+      }else{
+        this.$toast('没有更多了')
       }
     },
     loadMoreFailTask(){
@@ -176,6 +188,8 @@ export default {
           console.log(res.data.data.list.list)
           this.failTask = this.ongoingTask.concat(res.data.data.list.list)
         })
+      }else{
+        this.$toast('没有更多了')
       }
     }
   }
@@ -183,6 +197,12 @@ export default {
 </script>task
 
 <style lang="scss" scoped>
+.van-button--large {
+    width: 90%;
+    height: 30px;
+    line-height: 30px;
+    margin-top: 10px;
+}
 .task-center{
   .query-btn{
     margin:20px 0;

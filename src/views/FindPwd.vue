@@ -22,6 +22,7 @@
       </van-button>
       </van-field>
        <van-field label="新密码" type="password" v-model="newPwd" placeholder="请输入新密码" :error-message="newPwdMsg" @blur="verifyNewPwd" @focus="newPwdMsg=''"/>
+       <van-field label="确认新密码" type="password" v-model="confirmNewPwd" placeholder="确认新密码" :error-message="newConfrimPwdMsg" @blur="verifyConfirmNewPwd" @focus="newConfrimPwdMsg=''"/>
     </van-cell-group>
     <div style="padding:20px 15px;">
       <van-button type="info" size="large" round @click="resetPwd">确定</van-button>
@@ -42,8 +43,11 @@ export default {
       validPhone:false,
       newPwdMsg:'',
       newPwd:'',
-      validCode:false,
-      validNewPwd:false
+      validCode:false, 
+      validNewPwd:false,
+      confirmNewPwd:'',     //确认新密码
+      newConfrimPwdMsg:'',   //确认新密码的错误提示
+      validConfirmNewPwd:false    //确认密码验证是否通过
     }
   },
   methods:{
@@ -54,7 +58,7 @@ export default {
       if(this.validPhone){
         this.axios.post(`/api/code/phone?number=${this.phone}&type=2`).then(res=>{
           console.log(res)
-          if(res.data.code==200){
+          if(res.code==200){
             this.validPhone = true
             this.canGetCode = false;
             let timer = window.setInterval(()=>{
@@ -65,9 +69,9 @@ export default {
                 window.clearInterval(timer)
               }
             },1000)
-          }else if(res.data.code==500){
+          }else{
             this.validPhone = false
-            this.phoneMsg = res.data.message
+            this.phoneMsg = res.message
           }    
         })
       }
@@ -98,15 +102,23 @@ export default {
       }
       this.validNewPwd = true
     },
+    verifyConfirmNewPwd(){
+      if(this.confirmNewPwd.trim()!==this.newPwd){
+        this.newConfrimPwdMsg = '密码不一致'
+        return
+      }
+      this.validConfirmNewPwd = true
+    },
     resetPwd(){
-      if(this.validPhone&&this.validCode&&this.validNewPwd){
+      if(this.validPhone&&this.validCode&&this.validNewPwd&&this.validConfirmNewPwd){
         console.log('可以发送请求了')
          this.axios.post(`/api/u/find?code=${this.code}&password=${this.newPwd}&phone=${this.phone}`).then(res=>{
-           if(res.data.code==200){
-             console.log('可以发送请求了')
+           console.log(res)
+           if(res.code==200){   
+             this.$toast("重置密码成功")
            }else if(res.data.code==500){
              this.codeMsg=res.data.message
-           } 
+           }
          })
       }else{
         console.log('还不能发送请求')

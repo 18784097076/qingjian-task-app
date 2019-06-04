@@ -10,6 +10,8 @@ import {Button,Field,Toast,NavBar,Tabbar,TabbarItem,Icon,Panel,Tab,Tabs,List,Pop
 Vue.config.productionTip = false
 Vue.prototype.axios = axios
 
+axios.defaults.withCredentials = true
+
 
 
 /**

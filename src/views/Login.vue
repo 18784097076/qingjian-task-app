@@ -41,35 +41,17 @@ export default {
       if(this.validUname&&this.validUpwd){
         //给upwd加密
         let sha256 = require("js-sha256").sha256
-<<<<<<< HEAD
-        let safeUpwd = sha256(this.upwd)   //加密后的秘密
-        // this.axios.post('http://www.smctask.cn:8080/user/login',{account:this.uname,password:safeUpwd,role:3})
-        this.axios.post('/api/u/sign_in?password='+this.upwd+'&phone='+this.uname)
-                   .then(res=>{
-                     if(res.data.code == 200){
-                       //登录成功以后将token存在localStorage中
-                       localStorage.setItem('token',res.data.data.user.token);
-                       localStorage.setItem('roleId',res.data.data.user.roleId);
-                       this.$router.push('/home')
-                     }else if(res.data.code == 500){
-                       this.$toast(res.data.msg)
-                     }
-                   })
-=======
         let safeUpwd = sha256(this.upwd)   //加密后的密码
-         //this.axios.post('http://www.smctask.cn:8080/user/login',{account:this.uname,password:safeUpwd,role:3})
         this.axios.post('/api/u/sign_in?password='+this.upwd+'&phone='+this.uname)
                   .then(res=>{
-                    console.log(res.data.data.user.token)
                     if(res.data.code == 200){
                       //登录成功以后将token存在localStorage中
                       localStorage.setItem('token',res.data.data.user.token)
                       this.$router.push('/home')
                     }else if(res.data.code == 500){
-                      this.$toast(res.data.msg)
+                      this.$toast(res.data.message)
                     }
                   })
->>>>>>> f8b29e2ad39cfcbece9e4c5a691feb9bec0c099b
       }else if(!this.validUname){
         this.$toast('用户名不能为空')
       }else if(!this.validUpwd){

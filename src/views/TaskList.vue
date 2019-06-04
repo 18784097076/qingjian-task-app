@@ -5,14 +5,14 @@
       <van-icon name="replay"/> 
       <span>刷新任务</span>  
     </van-button>
-    <div class="all-task-list" v-if="taskList.length > 0">
-      <van-panel v-for="(item,i) of taskList" :key="i" class="task-item" :title="'任务ID:'+item.id" 
-      :desc="item.createTime|dateTime" status="赏金">
-        <div style="display:flex;padding:15px;justify-content:space-between">
-          <div v-if="item.createTime+300000-nowTime>0">倒计时{{(item.createTime+300000 - nowTime)|countdown}}</div>
-          <div v-else><van-button size="small" type="danger">任务失败</van-button></div>
+    <div class="all-task-list" v-if="taskList.length > 0" style="padding-bottom:60px">
+      <van-panel v-for="(item,i) of taskList" :key="i" class="task-item" :title="'任务ID:'+item.number" 
+      :desc="item.createTime|dateTime">
+        <div style="display:flex;padding:15px;justify-content:space-between;align-items:center">
+          <div v-if="item.createTime+300000-nowTime>0" style="color:red;font-weight:bold">{{(item.createTime+300000 - nowTime)|countdown}}</div>
+          <div v-else><van-button size="small" style="background:#ff976a;color:#fff"> 任务失效</van-button></div>
           <div>
-            <van-button type="primary" size="small" @click="getTask(item.id)">领取任务</van-button>
+            <van-button :disabled="!(item.createTime+300000-nowTime>0)" type="primary" size="small" @click="getTask(item.id)">领取任务</van-button>
           </div>
         </div>
       </van-panel>
@@ -20,9 +20,9 @@
     <div v-else style="margin-top:100px">
         暂时还没有任务,点击按钮刷新
     </div>
-    <van-dialog v-model="showTaskDetail" style="text-align:center">
+    <van-dialog confirmButtonText="关闭" v-model="showTaskDetail" style="text-align:center">
       <div class="card">
-        <div class="card-header" style="text-align:left;padding:10px 15px;font-size:14px;">
+        <div class="card-header" style="text-align:left;padding:10px 15px;font-size:14px;display:flex;justify-content:space-between">
             <!-- <span>任务详情</span>
             <span :style="{color:getColor(taskStatus)}">{{taskStatus | status}}</span> -->
             <p>发布人:{{taskDetail.publisher}}</p>
@@ -30,9 +30,6 @@
         </div>
         <div class="card-content">
             <img :src="qrcodeData">
-        </div>
-        <div class="card-footer">
-            {{taskDetail.qrUrl}}
         </div>
       </div>
     </van-dialog>
@@ -44,28 +41,31 @@ export default {
   data(){
     return {
       taskList:[
-        {"id":585814,"phone":"18023197334","qrUrl":"https://weixin110.qq.com/s/6e2fb9fd3f3","createTime":1559289708774,"updateTime":1557655261705,"publisher":"W007"},
-        {"id":585795,"phone":"18165797402","qrUrl":"https://weixin110.qq.com/s/5c26503096a","createTime":1559289888888,"updateTime":1557655221227,"publisher":"W007"},
-        {"id":585783,"phone":"17728288079","qrUrl":"https://weixin110.qq.com/s/a371321b07b","createTime":1559289798899,"updateTime":1557655202726,"publisher":"W007"}
+        // {"id":585814,"number":123456,"phone":"18023197334","qrUrl":"https://weixin110.qq.com/s/6e2fb9fd3f3","createTime":1559544005663,"updateTime":1557655261705,"publisher":"W007"},
+        // {"id":585795,"number":654321,"phone":"18165797402","qrUrl":"https://weixin110.qq.com/s/5c26503096a","createTime":1559525306958,"updateTime":1557655221227,"publisher":"W007"},
+        // {"id":585783,"number":666666,"phone":"17728288079","qrUrl":"https://weixin110.qq.com/s/a371321b07b","createTime":1559525306958,"updateTime":1557655202726,"publisher":"W007"}
       ],
       progress:0,
       pn:1,
       totalPage:0,     //一共有多少页
-      taskDetail:{"id":585814,"phone":"18023197334","qrUrl":"https://weixin110.qq.com/s/6e2fb9fd3f3","createTime":1557654952814,"updateTime":1557655261705,"publisher":"W007"},
+      taskDetail:{
+        // "number":585814,"phone":"18023197334","qrUrl":"https://weixin110.qq.com/s/6e2fb9fd3f3","createTime":1557654952814,"updateTime":1557655261705,"publisher":"W007"
+      },
       showTaskDetail:false,
       qrcodeData:'',
-      nowTime:new Date().getTime()
+      nowTime:new Date().getTime(),
+      timer1:''
     }
   },
   mounted(){
-    // this.axios.get(`/api/task/claimable?pn=${this.pn}&ps=10`).then((res)=>{    
-    //     console.log(res)
-    //         this.taskList = res.data.data.list.list
-    //         console.log(this.taskList)
-    //         this.totalPage = Math.ceil(res.data.data.list.total/10)
-    //         console.log(this.totalPage)
-    //     })
-    let timer = window.setInterval(()=>{
+    this.axios.get(`/api/task/claimable?pn=${this.pn}&ps=10`).then((res)=>{       
+        console.log(res.data)
+            this.taskList = res.data.data.list.list
+            //console.log(this.taskList)
+            this.totalPage = Math.ceil(res.data.data.list.total/10)
+            console.log(this.totalPage)
+        })
+    this.timer1 = window.setInterval(()=>{
       this.nowTime = new Date().getTime()
     },1000)
   },
@@ -89,8 +89,8 @@ export default {
     getTask(tid){
       //领取任务
       this.axios.put('/api/task/claim?tid='+tid).then(res=>{
-        // if(res.code == 200){
-          //this.taskDetail = res.data.info
+        if(res.code == 200){
+          this.taskDetail = res.data.info
           var qrcode = require('qrcode')
           qrcode.toDataURL(this.taskDetail.qrUrl,{
               errorCorrectionLevel:'H'
@@ -98,11 +98,15 @@ export default {
               this.qrcodeData = url
           })
           this.showTaskDetail = true
-        // }else{
-        //   this.$toast("领取失败") 
-        // }
+        }else{
+          this.$toast("领取失败") 
+        }
       })
     }
+  },
+  destroyed(){
+    console.log('组件被销毁了')
+    this.timer1 = null 
   }
 }
 </script>
