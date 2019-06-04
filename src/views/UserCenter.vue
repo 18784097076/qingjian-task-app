@@ -6,22 +6,22 @@
         <p>余额：<span>￥{{balance}}</span></p>
       </div>
       <div class="taskInfo">
-        <p :style="ifAgent?displayBlock:displayNone"><span style="color: black">个人：</span></p>
+        <p :style="ifAgent?displayBlock:displayNone"><span style="color: white">个人：</span></p>
         <p>任务总数: {{taskInfo.total}}</p>
         <p>进行: {{taskInfo.running}}</p>
         <p>成功: {{taskInfo.success}}</p>
         <p>失败: {{taskInfo.failure}}</p>
         <p>超时: {{taskInfo.timeout}}</p>
-        <p>成功率: {{(taskInfo.success/taskInfo.total).toFixed(2)*100+'%'}}</p>
+        <p>成功率: {{(taskInfo.success/taskInfo.total).toFixed(2)*100 | successRate}}</p>
       </div>
       <div class="taskInfo" :style="ifAgent?displayBlock:displayNone">
-        <p><span style="color: black">团队：</span></p>
+        <p><span style="color: white">团队：</span></p>
         <p>任务总数: {{teamInfo.total}}</p>
         <p>进行: {{teamInfo.running}}</p>
         <p>成功: {{teamInfo.success}}</p>
         <p>失败: {{teamInfo.failure}}</p>
         <p>超时: {{teamInfo.timeout}}</p>
-        <p>成功率: {{(teamInfo.success/teamInfo.total).toFixed(2)*100+'%'}}</p>
+        <p>成功率: {{(teamInfo.success/teamInfo.total).toFixed(2)*100 | successRate}}</p>
       </div>
 
     </header>
@@ -112,15 +112,20 @@ export default {
         title: '退出登录',
         message: '你确定要退出当前账户吗？'
       }).then(() => {
-        localStorage.removeItem('token');
-        this.$router.push('/login');
-      }).catch(() => {
+        this.axios.post('/api/u/sign_out').then(res=>{
+          if(res.data.code===200){
+            localStorage.removeItem('token');
+            this.$router.push('/login');
+          }else{
+            this.$toast({message:res.data.message})
+          }
+        })
 
-      });
+      })
     },
     checkPassword(){
       this.msg="";
-      if(this.password!=this.verifyPassword){
+      if(this.password!==this.verifyPassword){
         this.msg="两次输入密码不匹配！";
       }
     },
@@ -131,12 +136,12 @@ export default {
       let sha256 = require("js-sha256").sha256;
       let op = sha256(this.oldPassword);
       let np = sha256(this.password);
-      let params='op='+op+'&np='+np;
+      // let params='op='+op+'&np='+np;
       if(this.ifClose){
-        if(this.msg==""){
+        if(this.msg===""){
           //this.axios.post('http://www.smctask.cn:8080/user/password',params).then(res=>{
           this.axios.post('/api/u/password?np='+this.password+'&op='+this.oldPassword).then(res=>{
-            if(res.data.code=='200'){
+            if(res.data.code===200){
               let that =this;
               this.$toast({message:'修改密码成功，请重新登录！',onClose() {
                   this.msg="";
@@ -146,7 +151,7 @@ export default {
                   that.$router.push('/login');
                 },duration:2000});
               done();
-            }else if(res.data.code=='500'){
+            }else if(res.data.code===500){
               this.ifOldPasswordCorrect="你输入的旧密码错误！";
               done(false);
             }
@@ -183,7 +188,7 @@ export default {
     //   this.$router.push('/alipayInfo');
     // }
   },
-  created(){
+  activated() {
     let roleId=localStorage.getItem('roleId');
     if(roleId==3){
       this.ifAgent=true;
@@ -192,8 +197,8 @@ export default {
     }
     //this.axios.get('http://www.smctask.cn:8080/user/detail').then(res=>{
     this.axios.get('/api/u/info').then(res=>{
-      if(res.data.code==200){
-        this.invitationCode=res.data.data.detail.inviteCode
+      if(res.data.code===200){
+        this.invitationCode=res.data.data.detail.inviteCode;
         this.username=res.data.data.detail.nickname;
         this.balance=res.data.data.detail.balance.toFixed(2);
         let end=new Date().getTime();
@@ -263,5 +268,14 @@ export default {
       align-items: center;
     }
   }
+  li:nth-child(7){
+    margin-top:20px;
+    color:#26a2ff;
+    /*justify-content: center;*/
+  };
+  li:nth-child(8){
+    /*text-align: center;*/
+    color:#26a2ff;
+  };
 
 </style>

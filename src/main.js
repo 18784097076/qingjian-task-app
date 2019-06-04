@@ -53,6 +53,13 @@ Vue.filter('dateTime', (val) => {
   f < 10 && (f = '0' + f);
   s < 10 && (s = '0' + s);
   return `${y}-${m}-${d} ${h}:${f}:${s}`
+});
+Vue.filter('successRate',val=>{
+  if(isNaN(val)){
+    return '0%';
+  }else{
+    return val+'%';
+  }
 })
 
 Vue.filter('status', (val) => {

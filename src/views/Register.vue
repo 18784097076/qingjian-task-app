@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="container">
         <header>
             <span><van-icon name="arrow-left" @click="returnToLogin"/></span>
             注册
@@ -116,6 +116,9 @@
 </script>
 
 <style scoped>
+    #container{
+        margin-right: 14px;
+    }
     header{
         text-align: center;
         line-height:50px;

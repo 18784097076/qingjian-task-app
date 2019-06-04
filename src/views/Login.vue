@@ -41,17 +41,19 @@ export default {
       if(this.validUname&&this.validUpwd){
         //给upwd加密
         let sha256 = require("js-sha256").sha256
+
         let safeUpwd = sha256(this.upwd)   //加密后的密码
         this.axios.post('/api/u/sign_in?password='+this.upwd+'&phone='+this.uname)
-                  .then(res=>{
-                    if(res.data.code == 200){
-                      //登录成功以后将token存在localStorage中
-                      localStorage.setItem('token',res.data.data.user.token)
-                      this.$router.push('/home')
-                    }else if(res.data.code == 500){
-                      this.$toast(res.data.message)
-                    }
-                  })
+                   .then(res=>{
+                     if(res.data.code == 200){
+                       //登录成功以后将token存在localStorage中
+                       localStorage.setItem('token',res.data.data.user.token);
+                       localStorage.setItem('roleId',res.data.data.user.roleId);
+                       this.$router.push('/home')
+                     }else if(res.data.code == 500){
+                       this.$toast(res.data.message)
+                     }
+                   })
       }else if(!this.validUname){
         this.$toast('用户名不能为空')
       }else if(!this.validUpwd){

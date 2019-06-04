@@ -1,7 +1,9 @@
 <template>
   <div class="home">
     <van-nav-bar class="header-bg" title="任务平台" left-text="返回" left-arrow  @click-left="onClickLeft" />
-    <router-view></router-view>
+    <keep-alive>
+      <router-view></router-view>
+    </keep-alive>
     <van-tabbar v-model="active" route>
       <van-tabbar-item to="/taskList" icon="home-o">
         抢单列表
