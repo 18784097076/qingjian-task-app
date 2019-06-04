@@ -4,6 +4,7 @@
         <ul v-show="ifPay">
             <li class="taskList" v-for="(v,i) in pay" :key="i"><p>{{v.createTime|dateTime}}</p><div><p style="font-size:12px">花销: 提现</p><p>- <span class="income">{{Number(v.amount).toFixed(2)}} </span></p></div></li>
         </ul>
+        <p id="more"><span @click="addMore" v-show="ifAddMore">点击加载更多</span></p>
     </div>
 </template>
 
@@ -13,11 +14,26 @@
             return{
                 pay:[],
                 noPay:"您暂时还没有支出!",
-                ifPay:false
+                ifPay:false,
+                ifAddMore:false,
+                page:1,
             }
         },
         methods:{
-
+            addMore(){
+                let end=new Date().getTime();
+                this.page++;
+                this.axios.get('/api/bill/apply/list?end='+end+'&pn='+this.page+'&ps=10&start=0').then(res=>{
+                    if(res.data.data.list.list.length!=0){
+                        for(let i=0;i<res.data.data.list.list.length;i++){
+                            this.pay.push(res.data.data.list.list[i]);
+                        }
+                    };
+                    if(this.pay.length>=res.data.data.list.total){
+                        this.ifAddMore=false;
+                    }
+                })
+            }
         },
         mounted(){
             let end= new Date().getTime();
@@ -27,6 +43,9 @@
                 }else{
                     this.ifPay=true;
                     this.pay=res.data.data.list.list;
+                    if(res.data.data.list.total>=10){
+                        this.ifAddMore=true;
+                    }
                 }
             })
         }
@@ -56,5 +75,10 @@
         color:red;
         font-weight: bold;
         font-style: italic;
+    }
+    #more{
+        font-size: 12px;
+        color:gray;
+        padding:6px 0;
     }
 </style>
