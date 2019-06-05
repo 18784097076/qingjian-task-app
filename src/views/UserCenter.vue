@@ -1,6 +1,23 @@
 <template>
   <div>
+    <section style="background: #26a2ff">
+      <span style="color: white;font-size: 12px">请选择时间 : </span>
+      <van-button type="info" @click="start" size="small" style="background: #26a2ff;border: none">{{new Date(startDate).toLocaleDateString()}}</van-button>
+      <span style="color: white;font-size: 24px"> - </span>
+      <van-button type="info" @click="end" size="small" style="background: #26a2ff;border: none">{{new Date(endDate).toLocaleDateString()}}</van-button>
+    </section>
     <header>
+      <section>
+        <van-popup v-model="date" style="width:100%">
+          <van-datetime-picker
+                  v-model="currentDate"
+                  type="date"
+                  :max-date="new Date()"
+                  @confirm="sureSelectDate"
+                  @cancel="cancelSelectDate"
+          />
+        </van-popup>
+      </section>
       <div class="personalInfo">
         <p>{{username}}</p>
         <p>余额：<span>￥{{balance}}</span></p>
@@ -10,8 +27,8 @@
         <p>任务总数: {{taskInfo.total}}</p>
         <p>进行: {{taskInfo.running}}</p>
         <p>成功: {{taskInfo.success}}</p>
-        <p>失败: {{taskInfo.failure}}</p>
-        <p>超时: {{taskInfo.timeout}}</p>
+        <!--<p>失败: {{taskInfo.failure}}</p>-->
+        <!--<p>超时: {{taskInfo.timeout}}</p>-->
         <p>成功率: {{(taskInfo.success/taskInfo.total).toFixed(2)*100 | successRate}}</p>
       </div>
       <div class="taskInfo" :style="ifAgent?displayBlock:displayNone">
@@ -19,11 +36,10 @@
         <p>任务总数: {{teamInfo.total}}</p>
         <p>进行: {{teamInfo.running}}</p>
         <p>成功: {{teamInfo.success}}</p>
-        <p>失败: {{teamInfo.failure}}</p>
-        <p>超时: {{teamInfo.timeout}}</p>
+        <!--<p>失败: {{teamInfo.failure}}</p>-->
+        <!--<p>超时: {{teamInfo.timeout}}</p>-->
         <p>成功率: {{(teamInfo.success/teamInfo.total).toFixed(2)*100 | successRate}}</p>
       </div>
-
     </header>
     <section>
       <ul>
@@ -91,6 +107,9 @@ export default {
       taskInfo:{},
       previewUser:"",
       ifAgent:true,
+      date:false,
+      startDate:'',
+      endDate:'',
       displayNone:{
         'display':'none'
       },
@@ -98,9 +117,40 @@ export default {
         'display':'block',
       },
       teamInfo:{},
+      currentDate: new Date(),
+      dateType:1,
     }
   },
   methods:{
+    sureSelectDate(val){
+      if(this.dateType===1){
+        this.startDate=val.getTime();
+        this.axios.get('/api/task/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
+          this.taskInfo=res.data.data.statistic;
+        }).then(this.axios.get('/api/team/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
+          this.teamInfo=res.data.data.statistic;
+        }))
+      }else{
+        this.endDate=val.getTime();
+        this.axios.get('/api/task/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
+          this.taskInfo=res.data.data.statistic;
+        }).then(this.axios.get('/api/team/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
+          this.teamInfo=res.data.data.statistic;
+        }))
+      }
+      this.date=false;
+    },
+    cancelSelectDate(){
+      this.date=false;
+    },
+    start(){
+      this.dateType=1;
+      this.date=true;
+    },
+    end(){
+      this.dateType=2;
+      this.date=true;
+    },
     income(){
       this.$router.push('/income');
     },
@@ -189,6 +239,8 @@ export default {
     // }
   },
   activated() {
+    this.endDate=new Date().getTime();
+    this.startDate=new Date(new Date().toLocaleDateString()).getTime();
     let roleId=localStorage.getItem('roleId');
     if(roleId==3){
       this.ifAgent=true;
