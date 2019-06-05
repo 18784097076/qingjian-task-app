@@ -58,7 +58,7 @@ export default {
       if(this.validPhone){
         this.axios.post(`/api/code/phone?number=${this.phone}&type=2`).then(res=>{
           console.log(res)
-          if(res.code==200){
+          if(res.data.code==200){
             this.validPhone = true
             this.canGetCode = false;
             let timer = window.setInterval(()=>{
@@ -71,7 +71,7 @@ export default {
             },1000)
           }else{
             this.validPhone = false
-            this.phoneMsg = res.message
+            this.phoneMsg = res.data.message
           }    
         })
       }
@@ -114,8 +114,9 @@ export default {
         console.log('可以发送请求了')
          this.axios.post(`/api/u/find?code=${this.code}&password=${this.newPwd}&phone=${this.phone}`).then(res=>{
            console.log(res)
-           if(res.code==200){   
+           if(res.data.code==200){   
              this.$toast("重置密码成功")
+             this.$router.push('/login')
            }else if(res.data.code==500){
              this.codeMsg=res.data.message
            }
