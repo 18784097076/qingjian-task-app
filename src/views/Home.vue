@@ -63,7 +63,6 @@ export default {
     background:#26a2ff;
     .van-nav-bar__text,.van-icon,.van-nav-bar__title{
       color: #fff;
-
     }
   }
 }

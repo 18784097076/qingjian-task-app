@@ -44,7 +44,7 @@
     <section>
       <ul>
         <li @touchstart="income"><span>收入</span> <van-icon name="arrow" class="icons" /></li>
-        <li @touchstart="pay"><span>支出</span> <van-icon name="arrow" class="icons" /></li>
+        <li @touchstart="pay"><span>提现记录</span> <van-icon name="arrow" class="icons" /></li>
         <li @touchstart="cashWithdrawal"><span>提现</span> <van-icon name="arrow" class="icons" /></li>
         <!--<li @touchstart="alipayInfo"><span>支付宝账户</span> <van-icon name="arrow" class="icons" /></li>-->
         <li @touchstart="next"><span>下级信息</span> <van-icon name="arrow" class="icons" /></li>
@@ -124,7 +124,11 @@ export default {
   methods:{
     sureSelectDate(val){
       if(this.dateType===1){
-        this.startDate=val.getTime();
+        if(val.toLocaleDateString().toString()===new Date().toLocaleDateString().toString()){
+          this.startDate=new Date(new Date().toLocaleDateString()).getTime();
+        }else{
+          this.startDate=val.getTime();
+        }
         this.axios.get('/api/task/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
           this.taskInfo=res.data.data.statistic;
         }).then(this.axios.get('/api/team/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
@@ -253,9 +257,9 @@ export default {
         this.username=res.data.data.detail.nickname;
         this.balance=res.data.data.detail.balance.toFixed(2);
         let end=new Date().getTime();
-        this.axios.get('/api/task/statistic?end='+end+'&start=0').then(res=>{
+        this.axios.get('/api/task/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
           this.taskInfo=res.data.data.statistic;
-        }).then(this.axios.get('/api/team/statistic?end='+end+'&start=0').then(res=>{
+        }).then(this.axios.get('/api/team/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
           this.teamInfo=res.data.data.statistic;
         }).then(this.axios.get('/api/team/member?pn=1&ps=10').then(res=>{
           this.previewUser=res.data.data.pname;
