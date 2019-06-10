@@ -5,6 +5,7 @@
             <li class="taskList" v-for="(v,i) in income" :key="i"><p>{{v.createTime|dateTime}}</p><div><p  style="font-size:12px">来源：{{v.title}}</p><p>+ <span class="income">{{Number(v.amount).toFixed(2)}} </span></p></div></li>
         </ul>
         <p id="more"><span @click="addMore" v-show="ifAddMore">点击加载更多</span></p>
+        <div style="height: 50px"></div>
     </div>
 </template>
 

@@ -170,7 +170,6 @@ export default {
             this.$toast({message:res.data.message})
           }
         })
-
       })
     },
     checkPassword(){

@@ -19,6 +19,7 @@
                 </li>
             </ul>
             <p id="more"><span @click="addMore" v-show="ifAddMore">点击加载更多</span></p>
+            <div style="height: 50px"></div>
         </div>
     </div>
 </template>
