@@ -25,6 +25,20 @@ Vue.prototype.axios.interceptors.request.use(config => {
   token && (config.headers.token = token);
   return config;
 }, error => Promise.error(error));
+/* 响应拦截器 */
+ 
+Vue.prototype.axios.interceptors.response.use(function (response) { // ①10010 token过期（30天） ②10011 token无效  
+  if (response.data.code === 401) { 
+      window.localStorage.removeItem('token') // 删除已经失效或过期的token（不删除也可以，因为登录后覆盖） 
+      Toast.fail('验证已失效,请重新登录')
+      router.replace({
+          path: '/login' // 到登录页重新获取token
+      }) 
+  }
+      return response 
+  }, function (error) {
+      return Promise.reject(error)
+  })
 Vue.use(VueClipboard);
 Vue.use(Button);
 Vue.use(Field);

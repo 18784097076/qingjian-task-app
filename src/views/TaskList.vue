@@ -1,9 +1,10 @@
 <template>
   <div class="task-list">
-    <van-progress :percentage="progress" color="green" :show-pivot="false"/>
-    <van-button @click="replayTaskList" size="large" type="info" round style="margin:20px auto;height:30px;line-height:30px;width:80%">
+   <!-- <van-progress :percentage="progress" color="green" :show-pivot="false"/> -->
+    <van-button :disabled="!canReplay" @click="replayTaskList" size="large" type="info" round style="margin:20px auto;height:30px;line-height:30px;width:80%">
       <van-icon name="replay"/> 
-      <span>刷新任务</span>  
+      <span v-if="canReplay">刷新任务</span>  
+      <span v-else>{{num}}s后可再次刷新</span>
     </van-button>
     <div class="all-task-list" v-if="taskList.length > 0" style="padding-bottom:60px">
       <van-panel v-for="(item,i) of taskList" :key="i" class="task-item" :title="'任务ID:'+item.number" 
@@ -48,7 +49,9 @@ export default {
       showTaskDetail:false,
       qrcodeData:'',
       nowTime:new Date().getTime(),
-      timer1:''
+      timer1:'',
+      canReplay:true,
+      num:3
     }
   },
   mounted(){
@@ -58,10 +61,16 @@ export default {
         })
     this.timer1 = window.setInterval(()=>{
       this.nowTime = new Date().getTime()
+      this.num--
+      if(this.num<=0){
+        this.num = 3
+        this.canReplay = true
+      }
     },1000)
   },
   methods:{
     replayTaskList(){
+      this.canReplay = false
       //点击刷新,如果当前页小于总页数
       if(this.pn<this.totalPage){
         this.pn++
