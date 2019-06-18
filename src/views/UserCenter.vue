@@ -1,11 +1,5 @@
 <template>
   <div>
-    <section style="background: #26a2ff">
-      <span style="color: white;font-size: 12px">请选择时间 : </span>
-      <van-button type="info" @click="start" size="small" style="background: #26a2ff;border: none">{{new Date(startDate).toLocaleDateString()}}</van-button>
-      <span style="color: white;font-size: 24px"> - </span>
-      <van-button type="info" @click="end" size="small" style="background: #26a2ff;border: none">{{new Date(endDate).toLocaleDateString()}}</van-button>
-    </section>
     <header>
       <section>
         <van-popup v-model="date" style="width:100%">
@@ -18,27 +12,39 @@
           />
         </van-popup>
       </section>
-      <div class="personalInfo">
-        <p>{{username}}</p>
-        <p>余额：<span>￥{{balance}}</span></p>
-      </div>
-      <div class="taskInfo">
-        <p :style="ifAgent?displayBlock:displayNone"><span style="color: white">个人：</span></p>
-        <p>任务总数: {{taskInfo.total}}</p>
-        <p>进行: {{taskInfo.running}}</p>
-        <p>成功: {{taskInfo.success}}</p>
-        <!--<p>失败: {{taskInfo.failure}}</p>-->
-        <!--<p>超时: {{taskInfo.timeout}}</p>-->
-        <p>成功率: {{(taskInfo.success/taskInfo.total).toFixed(2)*100 | successRate}}</p>
-      </div>
-      <div class="taskInfo" :style="ifAgent?displayBlock:displayNone">
-        <p><span style="color: white">团队：</span></p>
-        <p>任务总数: {{teamInfo.total}}</p>
-        <p>进行: {{teamInfo.running}}</p>
-        <p>成功: {{teamInfo.success}}</p>
-        <!--<p>失败: {{teamInfo.failure}}</p>-->
-        <!--<p>超时: {{teamInfo.timeout}}</p>-->
-        <p>成功率: {{(teamInfo.success/teamInfo.total).toFixed(2)*100 | successRate}}</p>
+      <div id="pinfo">
+        <div id="left">
+          <div class="personalInfo">
+            <p>{{username}}</p>
+            <p>余额：</p>
+            <p><span>￥{{balance}}</span></p>
+          </div>
+        </div>
+        <div id="right">
+          <div class="time">
+            <van-button type="info" class="timeSelector" @click="start" size="mini" >{{new Date(startDate).toLocaleDateString()}}</van-button>
+            <span style="color: white;font-size: 24px"> - </span>
+            <van-button type="info" @click="end" size="mini" class="timeSelector">{{new Date(endDate).toLocaleDateString()}}</van-button>
+          </div>
+          <div class="team">
+            <div class="taskInfo">
+              <p v-show="ifAgent"><span style="color: white">个人：</span></p>
+              <p>任务总数: {{taskInfo.total}}</p>
+              <p>进行: {{taskInfo.running}}</p>
+              <p>成功: {{taskInfo.success}}</p>
+              <p>成功率: {{(taskInfo.success/taskInfo.total).toFixed(2)*100 | successRate}}</p>
+            </div>
+            <div class="taskInfo" v-show="ifAgent">
+              <p><span style="color: white">团队：</span></p>
+              <p>任务总数: {{teamInfo.total}}</p>
+              <p>进行: {{teamInfo.running}}</p>
+              <p>成功: {{teamInfo.success}}</p>
+              <!--<p>失败: {{teamInfo.failure}}</p>-->
+              <!--<p>超时: {{teamInfo.timeout}}</p>-->
+              <p>成功率: {{(teamInfo.success/teamInfo.total).toFixed(2)*100 | successRate}}</p>
+            </div>
+          </div>
+        </div>
       </div>
     </header>
     <section>
@@ -48,8 +54,8 @@
         <li @touchstart="cashWithdrawal"><span>提现</span> <van-icon name="arrow" class="icons" /></li>
         <!--<li @touchstart="alipayInfo"><span>支付宝账户</span> <van-icon name="arrow" class="icons" /></li>-->
         <li @touchstart="next"><span>下级信息</span> <van-icon name="arrow" class="icons" /></li>
-        <li @touchstart="preview"><span>上级信息 : &nbsp;&nbsp;{{previewUser}} </span></li>
-        <li><span>邀请码 : &nbsp;&nbsp;{{invitationCode}}</span><van-button type="info" class="icons" v-clipboard:copy="'http://localhost:8080/#/register?code='+invitationCode"  v-clipboard:success="copySuccess" v-clipboard:error="copyError">复制</van-button></li>
+        <li><span>上级信息 : &nbsp;&nbsp;{{previewUser}} </span></li>
+        <li><span>邀请码 : &nbsp;&nbsp;{{invitationCode}}</span><van-button  class="icons copy" v-clipboard:copy="'http://localhost:8080/#/register?code='+invitationCode"  v-clipboard:success="copySuccess" v-clipboard:error="copyError">复制</van-button></li>
         <li @click="updatePassword">修改密码</li>
         <li @touchstart="loginOut">退出登录</li>
       </ul>
@@ -110,12 +116,6 @@ export default {
       date:false,
       startDate:'',
       endDate:'',
-      displayNone:{
-        'display':'none'
-      },
-      displayBlock:{
-        'display':'block',
-      },
       teamInfo:{},
       currentDate: new Date(),
       dateType:1,
@@ -131,16 +131,22 @@ export default {
         }
         this.axios.get('/api/task/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
           this.taskInfo=res.data.data.statistic;
-        }).then(this.axios.get('/api/team/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
-          this.teamInfo=res.data.data.statistic;
-        }))
+          if(this.ifAgent){
+          this.axios.get('/api/team/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
+              this.teamInfo=res.data.data.statistic;
+            })
+          }
+        })
       }else{
         this.endDate=val.getTime();
         this.axios.get('/api/task/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
           this.taskInfo=res.data.data.statistic;
-        }).then(this.axios.get('/api/team/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
-          this.teamInfo=res.data.data.statistic;
-        }))
+          if(this.ifAgent) {
+            this.axios.get('/api/team/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
+              this.teamInfo=res.data.data.statistic;
+            })
+          }
+        })
       }
       this.date=false;
     },
@@ -256,14 +262,16 @@ export default {
         this.invitationCode=res.data.data.detail.inviteCode;
         this.username=res.data.data.detail.nickname;
         this.balance=res.data.data.detail.balance.toFixed(2);
-        let end=new Date().getTime();
         this.axios.get('/api/task/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
           this.taskInfo=res.data.data.statistic;
-        }).then(this.axios.get('/api/team/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
-          this.teamInfo=res.data.data.statistic;
-        }).then(this.axios.get('/api/team/member?pn=1&ps=10').then(res=>{
-          this.previewUser=res.data.data.pname;
-        })))
+          if(this.ifAgent){
+            this.axios.get('/api/team/member?pn=1&ps=10').then(res=>{
+                this.previewUser=res.data.data.pname;
+              }).then(this.axios.get('/api/team/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
+                this.teamInfo=res.data.data.statistic;
+              }))
+          }
+        })
       }else{
         let that=this;
         this.$toast({message:'您的身份已过期,请重新登陆!',onClose() {
@@ -277,38 +285,15 @@ export default {
 <style lang="scss" scoped>
   header{
     background: #26a2ff;
-    padding:5px 0;
     display:flex;
+  }
+  .timeSelector{
+    background: #26a2ff;
+    border: 1px solid white;
+    padding:0 4px;
   }
   header div{
     flex: 1;
-  }
-  .personalInfo{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  .personalInfo p{
-    color:white;
-    text-align: left;
-    margin-left:10px;
-    font-size: 14px;
-    line-height:30px;
-  }
-  .personalInfo span{
-    font-size: 18px;
-    font-style: italic;
-  }
-  .taskInfo{
-    display: flex;
-    flex-direction: column;
-  }
-  .taskInfo p{
-    flex:1;
-    font-size: 12px;
-    color:white;
-    text-align: left;
-    padding-left:20px;
   }
   ul{
     li{
@@ -325,12 +310,41 @@ export default {
   }
   li:nth-child(7){
     margin-top:20px;
-    color:#26a2ff;
-    /*justify-content: center;*/
   };
-  li:nth-child(8){
-    /*text-align: center;*/
+  .copy{
     color:#26a2ff;
-  };
-
+    border:none;
+  }
+  #pinfo{
+    display: flex;
+  }
+  #right{
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+  }
+  #right .team{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+  }
+  .taskInfo p{
+    color: white;
+    font-size: 12px;
+    text-align: left;
+    padding-left: 20%;
+  }
+  #left{
+    flex: 2;
+  }
+  .personalInfo{
+    margin-top: 20px;
+  }
+  .personalInfo p{
+    color:white;
+    line-height: 24px;
+  }
+  .time{
+    margin-bottom: 6px;
+  }
 </style>

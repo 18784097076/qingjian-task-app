@@ -9,7 +9,6 @@ import Register from './views/Register.vue';
 import Income from './views/Income.vue';
 import Pay from './views/Pay';
 import CashWithdrawal from './views/CashWithdrawal';
-import PreviewUser from './views/PreviewUser';
 import NextUser from './views/NextUser';
 import FindPwd from './views/FindPwd'
 
@@ -32,7 +31,6 @@ export default new Router({
                 { path:'/income',component:Income},
                 { path:'/pay',component:Pay},
                 { path:'/cashWithdrawal',component:CashWithdrawal},
-                { path:'/previewUser',component:PreviewUser},
                 { path:'/nextUser',component:NextUser},
             ]
         }
