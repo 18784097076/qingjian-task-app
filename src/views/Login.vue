@@ -47,7 +47,7 @@ export default {
                    .then(res=>{
                      if(res.data.code == 200){
                        //登录成功以后将token存在localStorage中
-                       localStorage.setItem('token',res.data.data.user.token);
+                       localStorage.setItem('userToken',res.data.data.user.token);
                        localStorage.setItem('roleId',res.data.data.user.roleId);
                        this.$router.push('/home')
                      }else if(res.data.code == 500){
@@ -65,6 +65,12 @@ export default {
     },
     findPwd(){
       this.$router.push('/findPwd');
+    },
+  },
+  mounted(){
+    let token=localStorage.getItem('userToken');
+    if(token){
+      this.$router.push('/home');
     }
   }
 }

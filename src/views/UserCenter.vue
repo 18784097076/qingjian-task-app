@@ -12,35 +12,31 @@
           />
         </van-popup>
       </section>
-      <div id="pinfo">
+      <div id="pinfo" class="clear">
         <div id="left">
-          <div class="personalInfo">
             <p>{{username}}</p>
             <p>余额：</p>
-            <p><span>￥{{balance}}</span></p>
-          </div>
+            <p><span>{{balance}}</span></p>
         </div>
-        <div id="right">
-          <div class="time">
+        <div id="right" class="clear">
+          <div class="time" :style="ifAgent?'':'left:20%;'">
             <van-button type="info" class="timeSelector" @click="start" size="mini" >{{new Date(startDate).toLocaleDateString()}}</van-button>
             <span style="color: white;font-size: 24px"> - </span>
             <van-button type="info" @click="end" size="mini" class="timeSelector">{{new Date(endDate).toLocaleDateString()}}</van-button>
           </div>
-          <div class="team">
-            <div class="taskInfo">
+          <div class="team clear">
+            <div class="taskInfo" :style="ifAgent?'':'padding-left:10%;'">
               <p v-show="ifAgent"><span style="color: white">个人：</span></p>
               <p>任务总数: {{taskInfo.total}}</p>
               <p>进行: {{taskInfo.running}}</p>
               <p>成功: {{taskInfo.success}}</p>
               <p>成功率: {{(taskInfo.success/taskInfo.total).toFixed(2)*100 | successRate}}</p>
             </div>
-            <div class="taskInfo" v-show="ifAgent">
+            <div class="teamInfo" v-show="ifAgent">
               <p><span style="color: white">团队：</span></p>
               <p>任务总数: {{teamInfo.total}}</p>
               <p>进行: {{teamInfo.running}}</p>
               <p>成功: {{teamInfo.success}}</p>
-              <!--<p>失败: {{teamInfo.failure}}</p>-->
-              <!--<p>超时: {{teamInfo.timeout}}</p>-->
               <p>成功率: {{(teamInfo.success/teamInfo.total).toFixed(2)*100 | successRate}}</p>
             </div>
           </div>
@@ -49,15 +45,14 @@
     </header>
     <section>
       <ul>
-        <li @touchstart="income"><span>收入</span> <van-icon name="arrow" class="icons" /></li>
-        <li @touchstart="pay"><span>提现记录</span> <van-icon name="arrow" class="icons" /></li>
-        <li @touchstart="cashWithdrawal"><span>提现</span> <van-icon name="arrow" class="icons" /></li>
-        <!--<li @touchstart="alipayInfo"><span>支付宝账户</span> <van-icon name="arrow" class="icons" /></li>-->
-        <li @touchstart="next"><span>下级信息</span> <van-icon name="arrow" class="icons" /></li>
+        <li @click="income"><span>收入</span> <van-icon name="arrow" class="icons" /></li>
+        <li @click="pay"><span>提现记录</span> <van-icon name="arrow" class="icons" /></li>
+        <li @click="cashWithdrawal"><span>提现</span> <van-icon name="arrow" class="icons" /></li>
+        <li @click="next"><span>下级信息</span> <van-icon name="arrow" class="icons" /></li>
         <li><span>上级信息 : &nbsp;&nbsp;{{previewUser}} </span></li>
-        <li><span>邀请码 : &nbsp;&nbsp;{{invitationCode}}</span><van-button  class="icons copy" v-clipboard:copy="'http://localhost:8080/#/register?code='+invitationCode"  v-clipboard:success="copySuccess" v-clipboard:error="copyError">复制</van-button></li>
+        <li><span>邀请码 : &nbsp;&nbsp;{{invitationCode}}</span><van-button  class="icons copy" v-clipboard:copy="'http://'+domain+':'+port+'/#/register?code='+invitationCode"  v-clipboard:success="copySuccess" v-clipboard:error="copyError">复制</van-button></li>
         <li @click="updatePassword">修改密码</li>
-        <li @touchstart="loginOut">退出登录</li>
+        <li @click="loginOut">退出登录</li>
       </ul>
       <van-dialog
               v-model="show"
@@ -119,6 +114,8 @@ export default {
       teamInfo:{},
       currentDate: new Date(),
       dateType:1,
+      port:location.port,
+      domain:document.domain
     }
   },
   methods:{
@@ -174,7 +171,7 @@ export default {
       }).then(() => {
         this.axios.post('/api/u/sign_out').then(res=>{
           if(res.data.code===200){
-            localStorage.removeItem('token');
+            localStorage.removeItem('userToken');
             this.$router.push('/login');
           }else{
             this.$toast({message:res.data.message})
@@ -238,14 +235,11 @@ export default {
       this.$router.push('/nextUser');
     },
     copySuccess(e){
-      // console.log('copy',e.text)
+      this.$toast({message:"复制成功！"})
     },
     copyError(e){
-      // console.log('failed',e)
+
     },
-    // alipayInfo(){
-    //   this.$router.push('/alipayInfo');
-    // }
   },
   activated() {
     this.endDate=new Date().getTime();
@@ -262,14 +256,15 @@ export default {
         this.invitationCode=res.data.data.detail.inviteCode;
         this.username=res.data.data.detail.nickname;
         this.balance=res.data.data.detail.balance.toFixed(2);
-        this.axios.get('/api/task/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
+        this.axios.get('/api/u/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
           this.taskInfo=res.data.data.statistic;
-          if(this.ifAgent){
-            this.axios.get('/api/team/member?pn=1&ps=10').then(res=>{
+          this.axios.get('/api/team/member?pn=1&ps=10').then(res=>{
                 this.previewUser=res.data.data.pname;
-              }).then(this.axios.get('/api/team/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
+              })
+          if(this.ifAgent){
+            this.axios.get('/api/team/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
                 this.teamInfo=res.data.data.statistic;
-              }))
+              })
           }
         })
       }else{
@@ -283,9 +278,94 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+  .time{
+    position: absolute;
+    left:10%;
+  }
+  .clear:after{
+    content: '';
+    clear: both;
+    display: block;
+  }
+  #left{
+    float: left;
+    width: 40%;
+  }
+  #left p{
+    color: white;
+    line-height: 30px;
+    text-align: left;
+    padding-left: 10px;
+  }
+  #left p:nth-child(1){
+    margin-top:16px;
+  }
+  #right{
+    float: left;
+    width: 60%;
+    position:relative;
+  }
+  .taskInfo{
+    float: left;
+    width: 50%;
+    p{
+      color:white;
+      text-align: left;
+      font-size:12px;
+      padding-left: 20%;
+    }
+  }
+  .team{
+    margin-top:34px;
+    margin-bottom:4px;
+  }
+  .teamInfo{
+    float: left;
+    width: 50%;
+    p{
+      color:white;
+      text-align: left;
+      font-size:12px;
+      padding-left: 20%;
+    }
+  }
+/*  #pinfo{
+    display: flex;
+  }
+  #left{
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    flex: 2;
+    padding:10px 0;
+  }
+  #left p{
+    color: white;
+    line-height: 30px;
+    padding-left:14px;
+  }
+  #right{
+    display:flex;
+    flex-direction: column;
+    flex: 3;
+  }
+  .team{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 4px 0;
+    width: 80%;
+    margin-left:10%;
+  !*  margin:-12px auto;*!
+    border:1px solid red;
+  }
+  .team p{
+    color:white;
+    font-size:12px;
+    text-align: left;
+  }*/
   header{
     background: #26a2ff;
-    display:flex;
   }
   .timeSelector{
     background: #26a2ff;
@@ -314,37 +394,5 @@ export default {
   .copy{
     color:#26a2ff;
     border:none;
-  }
-  #pinfo{
-    display: flex;
-  }
-  #right{
-    flex: 3;
-    display: flex;
-    flex-direction: column;
-  }
-  #right .team{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-  }
-  .taskInfo p{
-    color: white;
-    font-size: 12px;
-    text-align: left;
-    padding-left: 20%;
-  }
-  #left{
-    flex: 2;
-  }
-  .personalInfo{
-    margin-top: 20px;
-  }
-  .personalInfo p{
-    color:white;
-    line-height: 24px;
-  }
-  .time{
-    margin-bottom: 6px;
   }
 </style>

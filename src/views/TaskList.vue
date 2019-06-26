@@ -2,8 +2,8 @@
   <div class="task-list">
    <!-- <van-progress :percentage="progress" color="green" :show-pivot="false"/> -->
     <van-button :disabled="!canReplay" @click="replayTaskList" size="large" type="info" round style="margin:20px auto;height:30px;line-height:30px;width:80%">
-      <van-icon name="replay"/> 
-      <span v-if="canReplay">刷新任务</span>  
+      <!--<van-icon name="replay"/> -->
+      <span v-if="canReplay" >刷新任务</span>
       <span v-else>{{num}}s后可再次刷新</span>
     </van-button>
     <div class="all-task-list" v-if="taskList.length > 0" style="padding-bottom:60px">
@@ -17,15 +17,15 @@
           </div>
         </div>
       </van-panel>
+        <p v-show="taskList.length >= 10?true:false" @click="addMore" id="addMore">加载更多...</p>
     </div>
     <div v-else style="margin-top:100px">
         暂时还没有任务,点击按钮刷新
     </div>
-    <van-dialog confirmButtonText="关闭" v-model="showTaskDetail" style="text-align:center">
+
+    <van-dialog confirmButtonText="关闭" @confirm="refresh" v-model="showTaskDetail" style="text-align:center">
       <div class="card">
         <div class="card-header" style="text-align:left;padding:10px 15px;font-size:14px;display:flex;justify-content:space-between">
-            <!-- <span>任务详情</span>
-            <span :style="{color:getColor(taskStatus)}">{{taskStatus | status}}</span> -->
             <p>发布人:{{taskDetail.publisher}}</p>
             <p>{{taskDetail.createTime | dateTime}}</p>
         </div>
@@ -51,33 +51,30 @@ export default {
       nowTime:new Date().getTime(),
       timer1:'',
       canReplay:true,
-      num:3
+      num:4
     }
   },
   mounted(){
-    this.axios.get(`/api/task/claimable?pn=${this.pn}&ps=10`).then((res)=>{
+    this.axios.get(`/api/task/claimable?pn=1&ps=10`).then((res)=>{
             this.taskList = res.data.data.list.list;
             this.totalPage = Math.ceil(res.data.data.list.total/10)
         })
     this.timer1 = window.setInterval(()=>{
       this.nowTime = new Date().getTime()
-      this.num--
+      this.num--;
       if(this.num<=0){
-        this.num = 3
+        this.num = 4
         this.canReplay = true
       }
     },1000)
   },
   methods:{
     replayTaskList(){
-      this.canReplay = false
-      //点击刷新,如果当前页小于总页数
-      if(this.pn<this.totalPage){
-        this.pn++
-        this.axios.get(`/api/task/claimable?pn=${this.pn}&ps=10`).then((res)=>{    
-              this.taskList = res.data.data.list.list.concat(this.taskList)
+      this.pn=1;
+      this.canReplay = false;
+        this.axios.get(`/api/task/claimable?pn=1&ps=10`).then((res)=>{
+              this.taskList = res.data.data.list.list;
           })
-      }
       let timer=window.setInterval(()=>{
         this.progress += 1;
         if(this.progress >= 100){
@@ -86,26 +83,45 @@ export default {
         }
       },30)
     },
+      addMore(){
+          this.pn++;
+          this.axios.get(`/api/task/claimable?pn=${this.pn}&ps=10`).then((res)=>{
+              this.taskList = res.data.data.list.list;
+          })
+      },
+    refresh(){
+        this.axios.get(`/api/task/claimable?pn=${this.pn}&ps=10`).then((res)=>{
+            this.taskList = res.data.data.list.list;
+            this.totalPage = Math.ceil(res.data.data.list.total/10)
+        })
+        this.timer1 = window.setInterval(()=>{
+            this.nowTime = new Date().getTime()
+            this.num--
+            if(this.num<=0){
+                this.num = 4
+                this.canReplay = true
+            }
+        },1000)
+    },
     getTask(tid){
       //领取任务
-      this.axios.put('/api/task/claim?tid='+tid).then(res=>{
-        if(res.code == 200){
-          this.taskDetail = res.data.info;
+      this.axios.post('/api/task/claim?tid='+tid).then(res=>{
+        if(res.data.code == 200){
+          this.taskDetail = res.data.data.info;
           var qrcode = require('qrcode');
           qrcode.toDataURL(this.taskDetail.qrUrl,{
               errorCorrectionLevel:'H'
           },(err,url)=>{
               this.qrcodeData = url
-          })
+          });
           this.showTaskDetail = true
         }else{
-          this.$toast("领取失败") 
+          this.$toast(res.data.message)
         }
       })
     }
   },
   destroyed(){
-    console.log('组件被销毁了');
     this.timer1 = null 
   }
 }
@@ -128,4 +144,9 @@ export default {
     }
   }
 }
+    #addMore{
+        font-size: 12px;
+        color: gray;
+        padding-top:6px;
+    }
 </style>

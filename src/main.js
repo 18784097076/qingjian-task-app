@@ -21,7 +21,7 @@ axios.defaults.withCredentials = true
 Vue.prototype.axios.interceptors.request.use(config => {
   // iView.LoadingBar.start();
   // iView.Spin.show();
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('userToken');
   token && (config.headers.token = token);
   return config;
 }, error => Promise.error(error));
@@ -29,7 +29,7 @@ Vue.prototype.axios.interceptors.request.use(config => {
  
 Vue.prototype.axios.interceptors.response.use(function (response) { // ①10010 token过期（30天） ②10011 token无效  
   if (response.data.code === 401) { 
-      window.localStorage.removeItem('token') // 删除已经失效或过期的token（不删除也可以，因为登录后覆盖） 
+      window.localStorage.removeItem('userToken') // 删除已经失效或过期的token（不删除也可以，因为登录后覆盖）
       Toast.fail('验证已失效,请重新登录')
       router.replace({
           path: '/login' // 到登录页重新获取token
@@ -88,9 +88,7 @@ Vue.filter('status', (val) => {
 
 //倒计时过滤器
 Vue.filter('countdown',(val)=>{
-  console.log(val)
   var ts = parseInt(val/1000)
-  console.log(ts)
   var m = parseInt(ts/60)<10?'0'+parseInt(ts/60):parseInt(ts/60)
   var s = ts%60<10?'0'+ts%60:ts%60
   return `${m}:${s}`

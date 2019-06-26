@@ -27,7 +27,6 @@
     export default {
         data(){
             return{
-                //{"user":"qwe123","code":"WE34D"},{"user":"qwe123","code":"WE34D"},{"user":"qwe123","code":"WE34D"}
                 nextUser:[],
                 firstUserNum:0,
                 secondUserNum:0,
@@ -38,9 +37,6 @@
             }
         },
         methods:{
-            getNextUserDetail(e){
-                this.$router.push(`/nextUserDetail/${e.target.dataset.index}`);
-            },
             addMore(){
                 this.page++;
                 this.axios.get('/api/team/member?pn='+this.page+'&ps=10').then(res=>{
