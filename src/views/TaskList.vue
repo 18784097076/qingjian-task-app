@@ -29,6 +29,7 @@
             <p>发布人:{{taskDetail.publisher}}</p>
             <p>{{taskDetail.createTime | dateTime}}</p>
         </div>
+        <p class="small">任务id:{{taskDetail.number}}</p>
         <div class="card-content">
             <img :src="qrcodeData">
         </div>
@@ -91,7 +92,7 @@ export default {
       },
     refresh(){
         this.axios.get(`/api/task/claimable?pn=${this.pn}&ps=10`).then((res)=>{
-            this.taskList = res.data.data.list.list;
+            this.taskList = this.taskList.concat(res.data.data.list.list);
             this.totalPage = Math.ceil(res.data.data.list.total/10)
         })
         this.timer1 = window.setInterval(()=>{
@@ -148,5 +149,14 @@ export default {
         font-size: 12px;
         color: gray;
         padding-top:6px;
+    }
+    .card-content img{
+        width: 300px;
+        height:300px;
+    }
+    .small{
+        font-size: 12px;
+        text-align: left;
+        padding-left: 14px;
     }
 </style>

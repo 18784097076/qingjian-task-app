@@ -6,8 +6,8 @@
           <div  class="task-list-item" v-for="(item,i) in ongoingTask" :key="i">
             <p>创建时间:{{item.createTime|dateTime}}</p>
             <div class="task-desc">
-              <span>任务ID:{{item.id}}</span>
-              <van-button type="info" size="small" @click="taskDetail(item.status,item.qrUrl)">查看详情</van-button>
+              <span>任务ID:{{item.number}}</span>
+              <van-button type="info" size="small" @click="taskDetail(item.status,item.qrUrl,item.publisher,item.number)">查看详情</van-button>
             </div>
           </div>
           <p class="addMore" @click="loadMoreRunningTask" v-show="goingMore">加载更多...</p>
@@ -21,8 +21,8 @@
           <div  class="task-list-item" v-for="(item,i) in successTask" :key="i">
             <p>创建时间:{{item.createTime|dateTime}}</p>
             <div class="task-desc">
-              <span>任务ID:{{item.id}}</span>
-              <van-button type="info" size="small" @click="taskDetail(item.status,item.qrUrl)">查看详情</van-button>
+              <span>任务ID:{{item.number}}</span>
+              <van-button type="info" size="small" @click="taskDetail(item.status,item.qrUrl,item.publisher,item.number)">查看详情</van-button>
             </div>
           </div>
           <p class="addMore" @click="loadMoreSuccessTask" v-show="successMore">加载更多...</p>
@@ -33,11 +33,11 @@
       </van-tab>
       <van-tab title="失败">
         <div class="task-list" v-if="failTask.length > 0" style="padding-bottom:20px;">
-          <div  class="task-list-item" v-for="(item,i) in failTask" :key="i">
+          <div  class="task-list-item" v-for="item in failTask" :key="item.number">
             <p>创建时间:{{item.createTime|dateTime}}</p>
             <div class="task-desc">
-              <span>任务ID:{{item.id}}</span>
-              <van-button type="info" size="small" @click="taskDetail(item.status,item.qrUrl)">查看详情</van-button>
+              <span>任务ID:{{item.number}}</span>
+              <van-button type="info" size="small" @click="taskDetail(item.status,item.qrUrl,item.publisher,item.number)">查看详情</van-button>
             </div>
           </div>
           <p @click="loadMoreFailTask"  class="addMore" v-show="failMore">加载更多...</p>
@@ -50,9 +50,10 @@
     <van-dialog confirmButtonText="关闭" v-model="showTaskDetail" style="text-align:center">
       <div class="card">
         <div class="card-header" style="display:flex;justify-content:space-between;padding:10px 15px;">
-            <span>任务详情</span>
-            <span :style="{color:getColor(taskStatus)}">{{taskStatus | status}}</span>
+          <span>发布人:{{publisher}}</span>
+          <span :style="{color:getColor(taskStatus)}">{{taskStatus | status}}</span>
         </div>
+        <p class="small">任务id:{{number}}</p>
         <div class="card-content">
             <img :src="qrcodeData">
         </div>
@@ -86,11 +87,13 @@ export default {
       goingMore:true,
       successMore:true,
       failMore:true,
+      publisher:'',
+      number:'',
     }
   },
   methods:{
     handleClick(index,title){
-      /*switch (index+1) {
+      switch (index+1) {
         case 1:
           if(!this.ongoingTask.length>0){
             this.axios.get(`/api/task/claimed?pn=1&ps=10&status=1`).then(res=>{
@@ -114,6 +117,7 @@ export default {
               }else{
                 this.successMore=false;
               }
+              console.log(this.successTask);
             });
           }
           break;
@@ -130,12 +134,15 @@ export default {
             });
           }
           break;
-      }*/
+      }
     },
-    taskDetail(status,qrurl){
+    taskDetail(status, qrurl, publisher, number){
       this.showTaskDetail = true;
       this.taskStatus = status;
       this.qrcodeUrl = qrurl;
+      this.publisher = publisher;
+      this.number = number;
+      console.log(publisher,number);
       var qrcode = require('qrcode');
         qrcode.toDataURL(qrurl,{
             errorCorrectionLevel:'H'
@@ -197,15 +204,6 @@ export default {
   },
   mounted(){
     //进行中的任务
-    /*this.axios.get(`/api/task/claimed?pn=1&ps=10&status=1`).then(res=>{
-      this.ongoingTask = res.data.data.list.list;
-      this.totalPageR = Math.ceil(res.data.data.list.total/10);
-      if(this.ongoingTask.length<res.data.data.list.total){
-        this.goingMore=true;
-      }else{
-        this.goingMore=false;
-      }
-    });*/
     this.axios.get(`/api/task/claimed?pn=1&ps=10&status=1`).then(res=>{
       this.ongoingTask = res.data.data.list.list;
       this.totalPageR = Math.ceil(res.data.data.list.total/10);
@@ -213,24 +211,6 @@ export default {
         this.goingMore=true;
       }else{
         this.goingMore=false;
-      }
-    });
-    this.axios.get(`/api/task/claimed?pn=1&ps=10&status=2`).then(res=>{
-      this.successTask = res.data.data.list.list;
-      this.totalPageS = Math.ceil(res.data.data.list.total/10);
-      if(this.successTask.length<res.data.data.list.total){
-        this.successMore=true;
-      }else{
-        this.successMore=false;
-      }
-    });
-    this.axios.get(`/api/task/claimed?pn=1&ps=10&status=3`).then(res=>{
-      this.failTask = res.data.data.list.list;
-      this.totalPageF = Math.ceil(res.data.data.list.total/10);
-      if(this.failTask.length<res.data.data.list.total){
-        this.failMore=true;
-      }else{
-        this.failMore=false;
       }
     });
   },
@@ -271,6 +251,9 @@ export default {
       .task-desc{
         display: flex;
         justify-content: space-between;
+        span{
+          font-size: 12px;
+        }
       }
     }
   }
@@ -279,4 +262,9 @@ export default {
   font-size: 12px;
   padding:4px 0;
 }
+  .small{
+    font-size: 12px;
+    text-align: left;
+    padding-left:14px;
+  }
 </style>
