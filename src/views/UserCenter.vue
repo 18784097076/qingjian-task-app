@@ -102,7 +102,7 @@
   export default {
     data(){
       return{
-        marginTop:{"margin-top":"80px"},
+        marginTop:{"margin-top":"76px"},
         fontSize:{"font-size":"12px"},
         username:"",
         balance:"",
@@ -318,6 +318,7 @@
 }
 #Bottom{
   display: flex;
+  margin-top:-8px;
   div{
     p{
       color: white;
@@ -327,7 +328,7 @@
 #p-info-bottom-left{
   flex:3;
   div{
-    margin: 10px;
+    margin: 8px;
   }
   div>p{
     text-align: left;
