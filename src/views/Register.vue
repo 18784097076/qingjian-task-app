@@ -1,33 +1,30 @@
 <template>
     <div id="container">
-        <header>
+        <header id="head">
             <span><van-icon name="arrow-left" @click="returnToLogin"/></span>
             注册
         </header>
-        <section>
+        <section class="container">
             <van-field
                     v-model="phone"
-                    label="手机号"
                     placeholder="请输入手机号"
             />
             <div id="verify">
                 <van-field
                         v-model="verifyCode"
-                        label="验证码"
+                        placeholder="请输入验证码"
                 />
-                <van-button type="info" class="getVerifyCode" @touchstart="getVerifyCode" :disabled="ifDisabled">获取验证码</van-button>
+                <van-button class="getVerifyCode" @touchstart="getVerifyCode" :disabled="ifDisabled">获取验证码</van-button>
             </div>
 
             <van-field
                     v-model="password"
                     type="password"
-                    label="密码"
                     placeholder="请输入密码"
             />
             <van-field
                     v-model="verifyPassword"
                     type="password"
-                    label="确认密码"
                     placeholder="请确认密码"
                     :error-message="msg"
                     @blur="checkPassword"
@@ -35,14 +32,13 @@
             <van-field
                     v-model="code"
                     type="text"
-                    label="推荐码"
                     value="code"
-                    disabled
+                    placeholder="请输入推荐码"
+                    class="inventionCode"
             />
         </section>
         <footer>
-            <van-button type="info" class="registerCommit" @touchstart="register">注册</van-button>
-            <span @click="returnToLogin">返回登录</span>
+            <van-button type="info" @click="register" size="large" round class="registerCommit" style="background: #62d3cc;border:none">注册</van-button>
         </footer>
     </div>
 </template>
@@ -117,7 +113,7 @@
 
 <style scoped>
     #container{
-        margin-right: 14px;
+        /*margin-right: 14px;*/
     }
     header{
         text-align: center;
@@ -130,7 +126,7 @@
         position: absolute;
         left:10px;
         top:4px;
-        color: #26a2ff;
+        color: #62d3cc;
     }
     #verify{
         position: relative;
@@ -139,24 +135,39 @@
         position: absolute;
         top:0px;
         right:0px;
+        background: none;
+        border: none;
+        color: #62d3cc;
     }
     foot{
         position:relative;
         width: 100%;
     }
     footer .registerCommit{
-        position:absolute;
-        left:50%;
-        width:120px;
-        margin-top:30px;
-        margin-left:-60px;
-        border-radius: 20px;
+        height: 40px;
+        line-height: 40px;
+        margin: 30px 14px 20px 14px;
+        width: 92%;
     }
     footer>span{
-        color: #26a2ff;
+        color: #62d3cc;
         font-size:14px;
         position:absolute;
         right:20px;
         top:330px;
+    }
+    .inventionCode{
+        border-bottom:1px solid #eee;
+        width: 96%;
+        margin-left: 14px;
+        padding-left: 0;
+    }
+    #head{
+        border-bottom: 1px solid #eee;
+        margin:0;
+        width: 100%;
+    }
+    .container{
+        margin-right: 14px;
     }
 </style>

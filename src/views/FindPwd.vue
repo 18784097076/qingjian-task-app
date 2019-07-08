@@ -1,31 +1,30 @@
 <template>
   <div class="find-pwd">
-    <header>
+    <header id="head">
         <span><van-icon name="arrow-left" @click="returnToLogin"/></span>
         找回密码
     </header>  
-    <van-cell-group>
-      <van-field label="手机号" v-model="phone" placeholder="请输入手机号" :error-message="phoneMsg" @blur="verifyPhone" @focus="phoneMsg=''"/>
+    <div class="container">
+      <van-field v-model="phone" placeholder="请输入手机号" :error-message="phoneMsg" @blur="verifyPhone" @focus="phoneMsg=''"/>
       <van-field
         v-model="code"
         center
         clearable
-        label="短信验证码"
         placeholder="请输入短信验证码"
         @blur="verifyCode"
         :error-message="codeMsg"
         @focus="codeMsg=''"
       >
-      <van-button slot="button" size="small" type="info" @click="getCode" :disabled="!canGetCode">
-        <span v-if="canGetCode">发送验证码</span>
+      <van-button slot="button" size="small" type="info" @click="getCode" :disabled="!canGetCode" class="send-code">
+        <span v-if="canGetCode" >发送验证码</span>
         <span v-else>{{this.num}}s后重新获取</span>
       </van-button>
       </van-field>
-       <van-field label="新密码" type="password" v-model="newPwd" placeholder="请输入新密码" :error-message="newPwdMsg" @blur="verifyNewPwd" @focus="newPwdMsg=''"/>
-       <van-field label="确认新密码" type="password" v-model="confirmNewPwd" placeholder="确认新密码" :error-message="newConfrimPwdMsg" @blur="verifyConfirmNewPwd" @focus="newConfrimPwdMsg=''"/>
-    </van-cell-group>
+       <van-field  type="password" v-model="newPwd" placeholder="请输入新密码" :error-message="newPwdMsg" @blur="verifyNewPwd" @focus="newPwdMsg=''"/>
+       <van-field  type="password" v-model="confirmNewPwd" class="newPwd" placeholder="确认新密码" :error-message="newConfrimPwdMsg" @blur="verifyConfirmNewPwd" @focus="newConfrimPwdMsg=''"/>
+    </div>
     <div style="padding:20px 15px;">
-      <van-button type="info" size="large" round @click="resetPwd">确定</van-button>
+      <van-button type="info" size="large" round @click="resetPwd" class="changePwd" style="background: #62d3cc;border:none">确定</van-button>
     </div>  
   </div>
 </template>
@@ -57,7 +56,6 @@ export default {
     getCode(){
       if(this.validPhone){
         this.axios.post(`/api/code/phone?number=${this.phone}&type=2`).then(res=>{
-          console.log(res)
           if(res.data.code==200){
             this.validPhone = true
             this.canGetCode = false;
@@ -74,6 +72,8 @@ export default {
             this.phoneMsg = res.data.message
           }    
         })
+      }else{
+        this.$toast({message:"请输入正确手机号"})
       }
     },
     verifyPhone(){
@@ -111,18 +111,16 @@ export default {
     },
     resetPwd(){
       if(this.validPhone&&this.validCode&&this.validNewPwd&&this.validConfirmNewPwd){
-        console.log('可以发送请求了')
          this.axios.post(`/api/u/find?code=${this.code}&password=${this.newPwd}&phone=${this.phone}`).then(res=>{
-           console.log(res)
-           if(res.data.code==200){   
+           if(res.data.code===200){
              this.$toast("重置密码成功")
              this.$router.push('/login')
-           }else if(res.data.code==500){
+           }else if(res.data.code===500){
              this.codeMsg=res.data.message
            }
          })
       }else{
-        console.log('还不能发送请求')
+        this.$toast({message:"请完善信息后提交"})
       }
       
     }
@@ -143,7 +141,29 @@ export default {
       position: absolute;
       left:10px;
       top:4px;
-      color: #26a2ff;
+      color: #62d3cc;
   }
 }
+  .changePwd{
+    height: 40px;
+    line-height: 40px;
+    margin-top: 20px;
+  }
+  .container{
+    margin-right: 14px;
+  }
+  .newPwd{
+    width: 96%;
+    margin-left: 14px;
+    padding-left: 0;
+    border-bottom:1px solid #eee;
+  }
+  #head{
+    border-bottom: 1px solid #eee;
+  }
+  .send-code{
+    background: none;
+    border:none;
+    color: #62d3cc;
+  }
 </style>

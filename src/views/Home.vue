@@ -4,7 +4,7 @@
     <keep-alive>
       <router-view></router-view>
     </keep-alive>
-    <van-tabbar v-model="active" route>
+    <van-tabbar v-model="active" route active-color="#62d3cc">
       <van-tabbar-item to="/taskList" icon="home-o">
         抢单列表
       </van-tabbar-item>
@@ -60,7 +60,7 @@ export default {
 <style lang="scss" scoped>
 .home{
   .header-bg{
-    background:#26a2ff;
+    background:#62d3cc;
     .van-nav-bar__text,.van-icon,.van-nav-bar__title{
       color: #fff;
     }

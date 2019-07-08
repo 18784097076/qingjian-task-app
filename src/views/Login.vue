@@ -2,12 +2,13 @@
   <div class="login">
     <h3>任务平台</h3>
     <div class="login-info">
-      <van-field label="用户名" v-model="uname" placeholder="请输入用户名" @blur="unameBlur"/>
-      <van-field type="password" label="密码" v-model="upwd" placeholder="请输入密码"  @blur="upwdBlur"/>
-      <van-button type="info" size="large" round style="margin:20px 0 10px;" @click="loginSubmit">登录</van-button>
-      <!-- <van-button size="large" round style="margin-top:10px;" @click="toRegister">注册</van-button> -->
-      <button @click="toRegister" class="register pwd">新用户注册</button>
-      <button @click="findPwd" class="find-pwd pwd">找回密码</button>
+      <div id="login-margin-left">
+        <van-field  v-model="uname" placeholder="请输入用户名" @blur="unameBlur" right-icon="cross" @click-right-icon="uname=''"/>
+        <van-field type="password"  v-model="upwd" placeholder="请输入密码"  @blur="upwdBlur"/>
+        <button @click="toRegister" class="register pwd">新用户注册</button>
+        <button @click="findPwd" class="find-pwd pwd">找回密码</button>
+      </div>
+      <van-button type="info" size="large" round @click="loginSubmit" id="login" style="background:#62d3cc;border:none">登录</van-button>
     </div>
   </div>
 </template>
@@ -76,6 +77,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  #login-margin-left{
+    margin-left: -15px;
+  }
 .login{
   padding:0 10%;
   .login-info{
@@ -87,8 +91,8 @@ export default {
       border:none;
       font-size:14px;
       background: transparent;
-      color:#1989fa;
-      padding:10px;
+      color:#62d3cc;
+      padding:10px 0px 0px 14px;
     }
     .find-pwd{
       float: right;
@@ -97,5 +101,10 @@ export default {
 }
   h3{
     padding-top:40px;
+  }
+  #login{
+    margin:30px 0px;
+    height: 40px;
+    line-height: 40px;
   }
 </style>

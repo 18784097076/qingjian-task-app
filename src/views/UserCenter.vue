@@ -2,7 +2,7 @@
   <div>
     <header>
       <section>
-        <van-popup v-model="date" style="width:100%">
+        <van-popup v-model="date" style="width:100%" position="bottom">
           <van-datetime-picker
                   v-model="currentDate"
                   type="date"
@@ -58,7 +58,7 @@
         <li @click="cashWithdrawal"><span>提现</span> <van-icon name="arrow" class="icons" /></li>
         <li @click="next"><span>下级信息</span> <van-icon name="arrow" class="icons" /></li>
         <li><span>上级信息 : &nbsp;&nbsp;{{previewUser}} </span></li>
-        <li><span>邀请码 : &nbsp;&nbsp;{{invitationCode}}</span><van-button  class="icons copy" v-clipboard:copy="href+'/register?code='+invitationCode"  v-clipboard:success="copySuccess" v-clipboard:error="copyError">复制</van-button></li>
+        <li><span>邀请码 : &nbsp;&nbsp;{{invitationCode}}</span><van-button  class="icons copy" v-clipboard:copy="href+'?code='+invitationCode"  v-clipboard:success="copySuccess" v-clipboard:error="copyError">复制</van-button></li>
         <li @click="updatePassword">修改密码</li>
         <li @click="loginOut">退出登录</li>
         <li></li>
@@ -103,7 +103,7 @@
     data(){
       return{
         marginTop:{"margin-top":"76px"},
-        fontSize:{"font-size":"12px"},
+        fontSize:{"font-size":"14px","padding-top":"16px"},
         username:"",
         balance:"",
         phone:localStorage.getItem('phone'),
@@ -122,50 +122,29 @@
         startDate:'',
         endDate:'',
         teamInfo:{},
-        currentDate: new Date(),
+        currentDate: new Date().toLocaleDateString(),
         href:location.origin+location.pathname
       }
     },
     methods:{
       sureSelectDate(val){
-        /*if(this.dateType===1){
-          if(val.toLocaleDateString().toString()===new Date().toLocaleDateString().toString()){
-            this.startDate=new Date(new Date().toLocaleDateString()).getTime();
-          }else{
-            this.startDate=val.getTime();
-          }
-          this.axios.get('/api/task/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
+        if(val.toLocaleDateString().toString() === new Date().toLocaleDateString().toString()){
+          this.startDate=new Date().setHours(0,0,0,0);
+          this.endDate=new Date().setHours(23,59,59,999)+1;
+        }else{
+          this.startDate=val.getTime();
+          this.endDate=val.getTime()+24*60*60*1000;
+        }
+        this.axios.get('/api/task/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
+          if(res.data.code === 200){
             this.taskInfo=res.data.data.statistic;
             if(this.ifAgent){
               this.axios.get('/api/team/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
                 this.teamInfo=res.data.data.statistic;
               })
             }
-          })
-        }else{
-          this.endDate=val.getTime();
-          this.axios.get('/api/task/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
-            this.taskInfo=res.data.data.statistic;
-            if(this.ifAgent) {
-              this.axios.get('/api/team/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
-                this.teamInfo=res.data.data.statistic;
-              })
-            }
-          })
-        }*/
-        if(val.toLocaleDateString().toString()===new Date().toLocaleDateString().toString()){
-          this.startDate=new Date(new Date().toLocaleDateString()).getTime();
-          this.endDate=val.getTime();
-        }else{
-          this.startDate=val.getTime();
-          this.endDate=val.getTime()+24*60*60*1000;
-        }
-        this.axios.get('/api/task/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
-          this.taskInfo=res.data.data.statistic;
-          if(this.ifAgent){
-            this.axios.get('/api/team/statistic?end='+this.endDate+'&start='+this.startDate).then(res=>{
-              this.teamInfo=res.data.data.statistic;
-            })
+          }else{
+            this.$toast({message : res.data.message});
           }
         })
         this.date=false;
@@ -188,7 +167,7 @@
           message: '你确定要退出当前账户吗？'
         }).then(() => {
           this.axios.post('/api/u/sign_out').then(res=>{
-            if(res.data.code===200){
+            if(res.data.code === 200){
               localStorage.removeItem('userToken');
               this.$router.push('/login');
             }else{
@@ -259,13 +238,13 @@
       this.endDate=new Date().getTime();
       this.startDate=new Date(new Date().toLocaleDateString()).getTime();
       let roleId=localStorage.getItem('roleId');
-      if(roleId==3){
+      if(roleId === '3'){
         this.ifAgent=true;
       }else{
         this.ifAgent=false;
       }
       this.axios.get('/api/u/info').then(res=>{
-        if(res.data.code===200){
+        if(res.data.code === 200){
           this.invitationCode=res.data.data.detail.inviteCode;
           this.username=res.data.data.detail.nickname;
           this.balance=res.data.data.detail.balance.toFixed(2);
@@ -281,19 +260,12 @@
             }
           })
         }else{
-          let that=this;
-          this.$toast({message:'您的身份已过期,请重新登陆!',onClose() {
-              that.$router.push('/login');
-            },duration:2000});
+          this.$toast({message : res.data.message})
         }
       });
     },
     created() {
-      if(location.pathname==='/'){
-        this.href=location.origin;
-      }else{
-        this.href=location.origin+location.pathname;
-      }
+        this.href=location.origin+location.pathname+'#/register';
     }
   }
 </script>
@@ -308,12 +280,13 @@
     padding:10px 0;
   }
   p:nth-child(1){
-    padding-top: 18px;
+    padding-top: 14px;
     margin-left:10px;
     flex: 3;
   }
   p:nth-child(2){
     flex: 2;
+    font-size: 14px;
   }
 }
 #Bottom{
@@ -332,7 +305,7 @@
   }
   div>p{
     text-align: left;
-    font-size: 12px;
+    font-size: 16px;
   }
 }
 #p-info-bottom-right{
@@ -343,7 +316,7 @@
   p {
     flex: 1;
     text-align: left;
-    font-size: 12px;
+    font-size: 14px;
     margin-left: -10px;
   }
 }
@@ -351,17 +324,17 @@
   background: none;
   border:1px solid white;
   padding: 0px 6px;
-  margin-top: 40px;
+  margin-top: 36px;
   margin-left: -34%;
 }
   header{
-    background: #26a2ff;
+    background: #62d3cc;
   }
   header div{
     flex: 1;
   }
   .bold{
-    font-size: 24px;
+    font-size: 20px;
     font-weight: bold;
     color: white;
   }
@@ -383,7 +356,7 @@
     }
   }
   .copy{
-    color:#26a2ff;
+    color:#62d3cc;
     border:none;
   }
 </style>

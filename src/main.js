@@ -5,12 +5,13 @@ import store from './store'
 import axios from 'axios'
 import VueClipboard   from 'vue-clipboard2'
 import 'vant/lib/index.css'
+import FastClick from 'fastclick'
+FastClick.attach(document.body);
 import {Button,Field,Toast,NavBar,Tabbar,TabbarItem,Icon,Panel,Tab,Tabs,List,Popup,DatetimePicker,Dialog,Progress,CellGroup} from 'vant';
+Vue.config.productionTip = false;
+Vue.prototype.axios = axios;
 
-Vue.config.productionTip = false
-Vue.prototype.axios = axios
-
-axios.defaults.withCredentials = true
+axios.defaults.withCredentials = true;
 
 
 
@@ -29,8 +30,8 @@ Vue.prototype.axios.interceptors.request.use(config => {
  
 Vue.prototype.axios.interceptors.response.use(function (response) { // ①10010 token过期（30天） ②10011 token无效  
   if (response.data.code === 401) { 
-      window.localStorage.removeItem('userToken') // 删除已经失效或过期的token（不删除也可以，因为登录后覆盖）
-      Toast.fail('验证已失效,请重新登录')
+      window.localStorage.removeItem('userToken') ;// 删除已经失效或过期的token（不删除也可以，因为登录后覆盖）
+      Toast.fail('验证已失效\n请重新登录');
       router.replace({
           path: '/login' // 到登录页重新获取token
       }) 
@@ -77,14 +78,27 @@ Vue.filter('successRate',val=>{
 })
 
 Vue.filter('status', (val) => {
-  if (val == 3) {
+  if (val === 2) {
       return '失败'
-  } else if (val == 2) {
+  } else if (val === 1) {
       return '成功'
-  }else if(val ==1 ){
+  }else if(val ===0 ){
       return '进行中'
   }
-})
+});
+Vue.filter('getStatus',(val)=>{
+    switch (val) {
+        case 0 :
+            return '待审核';
+            break;
+        case 1 :
+            return '成功';
+            break;
+        case 2 :
+            return '失败';
+            break;
+    }
+});
 
 //倒计时过滤器
 Vue.filter('countdown',(val)=>{
